@@ -14,7 +14,7 @@
 #include <asm/addrspace.h>
 #include <asm/io.h>
 #include <asm/reboot.h>
-#include <asm/ls1b.h>
+#include <asm/ls1x.h>
 //#include <pci.h>
 //#include <netdev.h>
 //#include <configs/ls1a.h>
@@ -24,6 +24,9 @@
 void show_boot_progress(int progress)
 {
 	printf("Boot reached stage %d\n", progress);
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+#endif
 }
 #endif
 
@@ -117,10 +120,11 @@ int board_eth_init(bd_t *bis)
 	return i;*/
 	return 0;
 }
-//zw
-#if 0
+/*
 int board_early_init_f(void)
 {
-	printf("in board_early_int_r\n");
-}
+	printf("in board_early_int_f\n");
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
 #endif
+}*/

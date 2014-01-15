@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2013
- * Tang Haifeng <tanghaifeng-gz@loongson.cn>
+ * (C) Copyright 2003
+ * Masami Komiya <mkomiya@sonare.it>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,12 +18,16 @@
  * MA 02111-1307 USA
  */
 
+/*
+ * Config header file for TANBAC TB0229 board using an VR4131 CPU module
+ */
+
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
 #define DEBUG  1
 
-#define CONFIG_MIPS32		1
+#define CONFIG_MIPS32		1	/* MIPS 4Kc CPU core	*/
 #define CONFIG_CPU_LOONGSON1B
 #define APB_CLK 33000000
 #define CPU_MULT 7
@@ -33,7 +37,7 @@
 #define BUZZER 1
 
 #ifndef CPU_CLOCK_RATE
-#define CPU_CLOCK_RATE	APB_CLK*CPU_MULT	/* 200 MHz clock for the MIPS core */
+#define CPU_CLOCK_RATE	APB_CLK*CPU_MULT	/* 800 MHz clock for the MIPS core */
 #endif
 #define CPU_TCLOCK_RATE CPU_CLOCK_RATE 
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE/4)
@@ -47,6 +51,35 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 << 10)
 #define CONFIG_SYS_INIT_SP_OFFSET	0x600000
 
+/* misc settings */
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f() */
+
+/* GPIO */
+#define CONFIG_LS1X_GPIO
+
+/* LED configuration */
+#define CONFIG_GPIO_LED
+#define CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
+
+/* The LED PINs */
+/* LED */
+#define STATUS_LED_BIT			38
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 100)
+
+/* LED 1 */
+#define STATUS_LED_BIT1			39
+#define STATUS_LED_STATE1		STATUS_LED_OFF
+#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 100)
+
+/* LED 2 */
+#define STATUS_LED_BIT2			40
+#define STATUS_LED_STATE2		STATUS_LED_OFF
+#define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 1000)
+
+/* Boot status LED */
+#define STATUS_LED_BOOT			1 /* LED 1 */
 
 /*
  * UART
