@@ -2,6 +2,7 @@
 #define __LS1X_H
 
 #include <asm/addrspace.h>
+#include <asm/cacheops.h>
 
 #define uncached(x) KSEG1ADDR(x)
 #define tobus(x)    (((unsigned long)(x)&0x1fffffff) )

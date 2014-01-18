@@ -136,6 +136,11 @@ static int calc_divisor (NS16550_t port)
 #endif
 
 #define MODE_X_DIV 16
+
+#ifdef CONFIG_CPU_LOONGSON1
+	return (gd->bus_clk) / (MODE_X_DIV * gd->baudrate);
+#endif
+
 	/* Compute divisor value. Normally, we should simply return:
 	 *   CONFIG_SYS_NS16550_CLK) / MODE_X_DIV / gd->baudrate
 	 * but we need to round that value by adding 0.5.

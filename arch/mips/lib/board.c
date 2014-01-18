@@ -33,6 +33,7 @@ static char *failed = "*** failed ***\n";
  */
 const unsigned long mips_io_port_base = -1;
 
+#ifndef CONFIG_BOARD_EARLY_INIT_F
 int __board_early_init_f(void)
 {
 	/*
@@ -42,6 +43,7 @@ int __board_early_init_f(void)
 }
 int board_early_init_f(void)
 	__attribute__((weak, alias("__board_early_init_f")));
+#endif
 
 static int init_func_ram(void)
 {

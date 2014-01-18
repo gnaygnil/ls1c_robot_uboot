@@ -28,6 +28,7 @@
 #define DEBUG  1
 
 #define CONFIG_MIPS32		1	/* MIPS 4Kc CPU core	*/
+#define CONFIG_CPU_LOONGSON1
 #define CONFIG_CPU_LOONGSON1B
 #define APB_CLK 33000000
 #define CPU_MULT 7
@@ -81,9 +82,7 @@
 /* Boot status LED */
 #define STATUS_LED_BOOT			1 /* LED 1 */
 
-/*
- * UART
- */
+/* UART */
 #define CONFIG_CPU_UART
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_CONS_INDEX	1
@@ -91,7 +90,7 @@
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	 1
-#define CONFIG_SYS_NS16550_CLK	 3686400 
+#define CONFIG_SYS_NS16550_CLK	0
 #define CONFIG_SYS_NS16550_COM1	 0xbfe48000
 
 
