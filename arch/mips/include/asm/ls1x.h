@@ -63,5 +63,8 @@
 #define LS1X_GPIO_OUT3		0xbfd010fc
 #endif
 
+/* SPI Controller */
+#define LS1X_SPI0_BASE	0xbfe80000
+#define LS1X_SPI1_BASE	0xbfec0000
 
 #endif
