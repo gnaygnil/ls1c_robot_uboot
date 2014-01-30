@@ -67,4 +67,14 @@
 #define LS1X_SPI0_BASE	0xbfe80000
 #define LS1X_SPI1_BASE	0xbfec0000
 
+/* watchdog */
+#if	defined(CONFIG_CPU_LOONGSON1A)
+#define LS1X_WDT_BASE				0xbfe7c060
+#elif	defined(CONFIG_CPU_LOONGSON1B) || defined(CONFIG_CPU_LOONGSON1C)
+#define LS1X_WDT_BASE				0xbfe5c060
+#endif
+#define WDT_EN						0x00
+#define WDT_TIMER					0x04
+#define WDT_SET						0x08
+
 #endif

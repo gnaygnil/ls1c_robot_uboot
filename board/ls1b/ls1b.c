@@ -32,22 +32,19 @@ void show_boot_progress(int progress)
 
 void _machine_restart(void)
 {
-	void (*f)(void) = (void *) 0xbfc00000;
-
-#if 0
-	/* dark the lcd */
-	outb(0xfe, 0xbfd00381);
-	outb(0x01, 0xbfd00382);
-	outb(0x00, 0xbfd00383);
-#endif
-	/* Tell EC to reset the whole system */
-	outb(0xf4, 0xbfd00381);
-	outb(0xec, 0xbfd00382);
-	outb(0x01, 0xbfd00383);
-
-	while (1);
-	/* Not reach here normally */
-	f();
+	int wdt_base = LS1X_WDT_BASE;
+	
+	writel(1, wdt_base + WDT_EN);
+	writel(0x5000000, wdt_base + WDT_TIMER);
+	writel(1, wdt_base + WDT_SET);
+	
+	while (1) {
+		__asm__(".set push;\n"
+			".set mips3;\n"
+			"wait;\n"
+			".set pop;\n"
+		);
+	}
 }
 
 phys_size_t initdram(int board_type)
@@ -65,6 +62,7 @@ int checkboard(void)
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
 #endif
+	return 0;
 }
 
 int board_eth_init(bd_t *bis)
