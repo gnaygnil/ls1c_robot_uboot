@@ -137,12 +137,14 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_MMC_SPI
 
+/* RTC configuration */
+#define CONFIG_RTC_LS1X
+#define CONFIG_CMD_DATE
+
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
-#define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop */
-#define CONFIG_CMD_FAT
 
 #define CONFIG_MTD_PARTITIONS
 

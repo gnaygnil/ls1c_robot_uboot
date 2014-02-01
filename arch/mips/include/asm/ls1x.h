@@ -77,4 +77,7 @@
 #define WDT_TIMER					0x04
 #define WDT_SET						0x08
 
+/* RTC */
+#define LS1X_RTC_BASE		0xbfe64000
+
 #endif
