@@ -141,6 +141,13 @@
 #define CONFIG_RTC_LS1X
 #define CONFIG_CMD_DATE
 
+/* NAND settings */
+#define CONFIG_SYS_NAND_SELF_INIT
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE	0xbfe78000
+#define CONFIG_CMD_NAND 1
+#define CONFIG_NAND_LS1X
+
 /*
  * Command line configuration.
  */

@@ -80,4 +80,7 @@
 /* RTC */
 #define LS1X_RTC_BASE		0xbfe64000
 
+/* NAND FLASH */
+#define LS1X_NAND_BASE		0xbfe78000
+
 #endif
