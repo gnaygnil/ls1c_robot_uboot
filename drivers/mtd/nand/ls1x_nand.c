@@ -441,8 +441,8 @@ static int ls1x_nand_init_buff(struct ls1x_nand_info *info)
 
 	order_addr_in = (unsigned int *)ORDER_ADDR_IN;
 
-	printf("data_buff_addr:0x%p, dma_addr:0x%p\n", info->data_buff, info->dma_desc);
-	printf("data_buff_addr:0x%08x, dma_addr:0x%08x\n", info->data_buff_phys, info->dma_desc_phys);
+//	printf("data_buff_addr:0x%p, dma_addr:0x%p\n", info->data_buff, info->dma_desc);
+//	printf("data_buff_addr:0x%08x, dma_addr:0x%08x\n", info->data_buff_phys, info->dma_desc_phys);
 	
 	return 0;
 }
