@@ -47,8 +47,8 @@
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000	/* Cached addr */
-#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
-#define CONFIG_SYS_LOAD_ADDR		0x80600000
+#define CONFIG_SYS_INIT_SP_OFFSET	0x00040000
+#define CONFIG_SYS_LOAD_ADDR		0x80200000
 #define CONFIG_SYS_MEMTEST_START	0x80100000
 #define CONFIG_SYS_MEMTEST_END		0x80800000
 #define CONFIG_DDR16BIT 1
@@ -108,7 +108,7 @@
 #define CONFIG_SYS_NO_FLASH	1
 
 /* Env Storage Settings */
-#if 0
+#if 1
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
@@ -120,6 +120,10 @@
 #define CONFIG_ENV_OFFSET	0x40000
 #define CONFIG_ENV_SIZE		0x20000
 #endif
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"mtdids=" MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 
 /* SPI_MMC Settings */
 #define CONFIG_MMC
@@ -138,8 +142,18 @@
 #define CONFIG_SYS_NAND_SELF_INIT
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE	0xbfe78000
-#define CONFIG_CMD_NAND 1
+#define CONFIG_CMD_NAND
 #define CONFIG_NAND_LS1X
+
+#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS	/* needed for UBI */
+#define MTDIDS_DEFAULT          "nand0=ls1x_nand"
+#define MTDPARTS_DEFAULT	"mtdparts=ls1x_nand:"	\
+/*						"128k(env),"	*/\
+						"14M(kernel),"	\
+						"100M(root),"	\
+						"-(user)"
+#define CONFIG_CMD_MTDPARTS
 
 /* File System Support */
 #define CONFIG_CMD_EXT2
@@ -151,5 +165,7 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
+
+#define CONFIG_CMD_ELF
 
 #endif	/* __CONFIG_H */

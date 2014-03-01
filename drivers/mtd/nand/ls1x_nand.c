@@ -72,7 +72,7 @@ static void __iomem *order_addr_in;
 #define nand_readl(info, off)		\
 	__raw_readl((info)->mmio_base + (off))
 
-#define MAX_BUFF_SIZE	2048	/* 10KByte */
+#define MAX_BUFF_SIZE	10240	/* 10KByte */
 #define PAGE_SHIFT		12	/* 页内地址(列地址)A0-A11 */
 
 #if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
@@ -417,32 +417,26 @@ static void ls1x_nand_cmdfunc(struct mtd_info *mtd, unsigned command, int column
 
 static int ls1x_nand_init_buff(struct ls1x_nand_info *info)
 {
-	info->dma_desc_size = DMA_DESC_NUM;
-	info->dma_desc = (void __iomem *)(((unsigned int)kzalloc(info->dma_desc_size, GFP_KERNEL) & 0x0fffffff) | 0xa0000000);
-//	info->dma_desc = malloc(info->dma_desc_size);
-	info->dma_desc = (void __iomem *)0xa8000000;
+	info->dma_desc_size = ALIGN(DMA_DESC_NUM, PAGE_SIZE);	/* 申请内存大小，页对齐 */
+	info->dma_desc = (void __iomem *)(((unsigned int)malloc(info->dma_desc_size) & 0x0fffffff) | 0xa0000000);
+	info->dma_desc = (void __iomem *)ALIGN((unsigned int)info->dma_desc, 32);	/* 地址32字节对齐 */
 	if (!info->dma_desc) {
 		dev_err(&pdev->dev,"fialed to allocate memory\n");
 		return -ENOMEM;
 	}
-//	info->dma_desc_phys = virt_to_phys(info->dma_desc);
-	info->dma_desc_phys = (unsigned int)info->dma_desc & 0x0fffffff;
+	info->dma_desc_phys = virt_to_phys(info->dma_desc);
 
-	info->data_buff_size = MAX_BUFF_SIZE;
-//	info->data_buff = (unsigned char *)((unsigned int)malloc(info->data_buff_size) | 0xa0000000);
-//	info->data_buff = (unsigned char *)kzalloc(info->data_buff_size, GFP_KERNEL);
-	info->data_buff = (unsigned char *)0xa8100000;
+//	info->data_buff_size = MAX_BUFF_SIZE;
+	info->data_buff_size = ALIGN(MAX_BUFF_SIZE, PAGE_SIZE);	/* 申请内存大小，页对齐 */
+	info->data_buff = (unsigned char *)(((unsigned int)malloc(info->data_buff_size) & 0x0fffffff) | 0xa0000000);
+	info->data_buff = (unsigned char *)ALIGN((unsigned int)info->data_buff, 32);	/* 地址32字节对齐 */
 	if (!info->data_buff) {
 		dev_err(&pdev->dev, "failed to allocate dma buffer\n");
 		return -ENOMEM;
 	}
-//	info->data_buff_phys = virt_to_phys(info->data_buff);
-	info->data_buff_phys = (unsigned int)info->data_buff & 0x0fffffff;
+	info->data_buff_phys = virt_to_phys(info->data_buff);
 
 	order_addr_in = (unsigned int *)ORDER_ADDR_IN;
-
-//	printf("data_buff_addr:0x%p, dma_addr:0x%p\n", info->data_buff, info->dma_desc);
-//	printf("data_buff_addr:0x%08x, dma_addr:0x%08x\n", info->data_buff_phys, info->dma_desc_phys);
 	
 	return 0;
 }
