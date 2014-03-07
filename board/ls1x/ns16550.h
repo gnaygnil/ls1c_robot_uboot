@@ -1,54 +1,9 @@
 /*
- *  Copyright (c) 2009  yanhua <yanh@lemote.it>
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2, or (at
  * your option) any later version.
  */
-
-#ifdef CONFIG_CPU_UART
-#define COMMON_COM_BASE_ADDR  0xbfe00000 
-#define NS16550HZ   3686400
-#else
-#define COMMON_COM_BASE_ADDR  0xbfe003f8
-#define NS16550HZ   1843200 
-#endif
-
-#define CONS_BAUD B115200
-/*
- * NS16550 UART registers
- */
-
-#define NS16550_CHANA	PHYS_TO_K1(UART0_BASE)
-#define NS16550_CHANB	PHYS_TO_K1(UART1_BASE)
-
-/*
- * Standard speeds, make these available for start.S et al.
- */
-#define B0      0
-#define B50     50
-#define B75     75
-#define B110    110
-#define B134    134
-#define B150    150
-#define B200    200
-#define B300    300
-#define B600    600
-#define B1200   1200
-#define B1800   1800
-#define B2400   2400
-#define B4800   4800
-#define B9600   9600
-#define B19200  19200
-#define B38400  38400
-#define B7200   7200
-#define B14400  14400
-#define B28800  28800
-#define B57600  57600
-#define B76800  76800
-#define B115200 115200
-#define B230400 230400
 
 #ifndef NSREG
 #define NSREG(x)	x
@@ -63,7 +18,6 @@
 #define	NS16550_LSR	5
 #define	NS16550_MSR	6	
 #define	NS16550_SCR	7
-
 
 /* interrupt enable register */
 #define	IER_ERXRDY	0x1	/* int on rx ready */
@@ -132,3 +86,4 @@
 #define	MSR_TERI	0x04    /* RI  changed */
 #define	MSR_DDSR	0x02    /* DSR changed */
 #define	MSR_DCTS	0x01    /* CTS changed */
+

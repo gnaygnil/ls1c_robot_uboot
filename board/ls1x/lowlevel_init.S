@@ -262,7 +262,7 @@ LEAF(initserial)
 	li	v1, CFCR_DLAB
 	sb	v1, NSREG(NS16550_CFCR)(v0)
 #if defined(LS1ASOC)
-//	li	v1, ((APB_CLK*DDR_MULT)/(2*16*CONS_BAUD))     // 8MHz crystal,   M[7:3]=6     1fboard
+//	li	v1, ((APB_CLK*DDR_MULT)/(2*16*CONFIG_BAUDRATE))     // 8MHz crystal,   M[7:3]=6     1fboard
 //	li	a0, 0xbfe78030
 //	lw	a0, (a0)
 	move	a0, a1
@@ -272,7 +272,7 @@ LEAF(initserial)
 	li		v1, APB_CLK
 	multu	a0, v1
 	mflo	v1
-	li		a0, 2*16*CONS_BAUD
+	li		a0, 2*16*CONFIG_BAUDRATE
 	divu	v1, a0
 	mflo	v1
 #elif defined(LS1BSOC)
@@ -309,7 +309,7 @@ LEAF(initserial)
 1:
 	srl		v1, 1	
 2:
-	li		a1, 2*16*CONS_BAUD
+	li		a1, 2*16*CONFIG_BAUDRATE
 	divu	v1, v1, a1
 #elif defined(LS1CSOC)
 	/* #uart3 config mux */
@@ -363,8 +363,8 @@ LEAF(initserial)
 	divu	v1, a1
 	mflo	v1				//APB_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5 / CPU_DIV
 3:
-//	li	v1, ((APB_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM / (16*CONS_BAUD)
-	li		a1, 16*CONS_BAUD
+//	li	v1, ((APB_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM / (16*CONFIG_BAUDRATE)
+	li		a1, 16*CONFIG_BAUDRATE
 	divu	v1, v1, a1
 #endif
 	sb	v1, NSREG(NS16550_DATA)(v0)
