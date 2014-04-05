@@ -160,6 +160,18 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
+/* Ethernet driver configuration */
+#define CONFIG_MII
+#define CONFIG_DESIGNWARE_ETH
+//#define CONFIG_DW_ALTDESCRIPTOR
+#define CONFIG_DW_SEARCH_PHY
+#define CONFIG_DW0_PHY				1
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
+#define CONFIG_DW_AUTONEG
+#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
+#define CONFIG_GMAC0_100M
+
 /*
  * Command line configuration.
  */
@@ -167,5 +179,8 @@
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
 
 #define CONFIG_CMD_ELF
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
 
 #endif	/* __CONFIG_H */

@@ -12,14 +12,12 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <miiphy.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/reboot.h>
 
 #include <asm/ls1x.h>
-//#include <pci.h>
-//#include <netdev.h>
-//#include <configs/ls1a.h>
-//#include <linux/mtd/nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,20 +64,51 @@ int checkboard(void)
 }
 
 int board_eth_init(bd_t *bis)
-{/*
-	int i = 0;
-#ifdef CONFIG_GMAC 
-	char* name = "syn0";
-	unsigned long long synopGMACMappedAddr = 3219193856;
-#if 0
-	i = gmac_initialize(name, synopGMACMappedAddr);
-#else
-	#define Gmac_base 0xbfe10000
-	i = gmac_initialize(name, Gmac_base);
+{
+	int ret = 0;
+
+#if defined(CONFIG_CPU_LOONGSON1A)
+	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
+	#ifdef CONFIG_GMAC0_100M
+	*((volatile unsigned int*)0xbfd00420) |= 0x500;		/* 配置成百兆模式 */
+	#else
+	*((volatile unsigned int*)0xbfd00420) &= ~0x500;		/* 否则配置成千兆模式 */
+	#endif
+	if (synopGMACMappedAddr == 0xbfe20000) {
+		*((volatile unsigned int*)0xbfd00420) &= ~0x01000000;	/* 使能GMAC1 */
+		#ifdef CONFIG_GMAC1_100M
+		*((volatile unsigned int*)0xbfd00420) |= 0xa00;		/* 配置成百兆模式 */
+		#else
+		*((volatile unsigned int*)0xbfd00420) &= ~0xa00;		/* 否则配置成千兆模式 */
+		#endif
+		#ifdef GMAC1_USE_UART01
+		*((volatile unsigned int*)0xbfd00420) |= 0xc0;
+		#else
+		*((volatile unsigned int*)0xbfd00420) &= ~0xc0;
+		#endif
+	}
+#elif defined(CONFIG_CPU_LOONGSON1B)
+	/* 寄存器0xbfd00424有GMAC的使能开关 */
+	*((volatile unsigned int*)0xbfd00424) &= ~0x1000;	/* 使能GMAC0 */
+	#ifdef CONFIG_GMAC0_100M
+	*((volatile unsigned int*)0xbfd00424) |= 0x5;		/* 配置成百兆模式 */
+	#else
+	*((volatile unsigned int*)0xbfd00424) &= ~0x5;	/* 否则配置成千兆模式 */
+	#endif
+#elif defined(CONFIG_CPU_LOONGSON1C)
+	*((volatile unsigned int *)0xbfd00424) &= ~(7 << 28);
+#ifdef RMII
+    *((volatile unsigned int *)0xbfd00424) |= (1 << 30); //wl rmii
 #endif
 #endif
-	return i;*/
-	return 0;
+
+#if defined(CONFIG_DESIGNWARE_ETH)
+	u32 interface = PHY_INTERFACE_MODE_MII;
+	if (designware_initialize(0, LS1X_GMAC0_BASE, CONFIG_DW0_PHY,
+				interface) >= 0)
+		ret++;
+#endif
+	return ret;
 }
 
 static void calc_clocks(void)

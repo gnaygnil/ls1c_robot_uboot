@@ -83,4 +83,8 @@
 /* NAND FLASH */
 #define LS1X_NAND_BASE		0xbfe78000
 
+/* ETH GMAC */
+#define LS1X_GMAC0_BASE		0xbfe10000
+#define LS1X_GMAC1_BASE		0xbfe20000
+
 #endif

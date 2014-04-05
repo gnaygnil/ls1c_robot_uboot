@@ -51,7 +51,7 @@ static void tx_descs_init(struct eth_device *dev)
 	/* Correcting the last pointer of the chain */
 	desc_p->dmamac_next = &desc_table_p[0];
 
-	writel((ulong)&desc_table_p[0], &dma_p->txdesclistaddr);
+	writel((ulong)(virt_to_phys(&desc_table_p[0])), &dma_p->txdesclistaddr);
 }
 
 static void rx_descs_init(struct eth_device *dev)
@@ -78,7 +78,7 @@ static void rx_descs_init(struct eth_device *dev)
 	/* Correcting the last pointer of the chain */
 	desc_p->dmamac_next = &desc_table_p[0];
 
-	writel((ulong)&desc_table_p[0], &dma_p->rxdesclistaddr);
+	writel((ulong)(virt_to_phys(&desc_table_p[0])), &dma_p->rxdesclistaddr);
 }
 
 static void descs_init(struct eth_device *dev)
@@ -284,7 +284,8 @@ static int eth_mdio_read(struct eth_device *dev, u8 addr, u8 reg, u16 *val)
 	miiaddr = ((addr << MIIADDRSHIFT) & MII_ADDRMSK) | \
 		  ((reg << MIIREGSHIFT) & MII_REGMSK);
 
-	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
+//	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
+	writel(miiaddr | MII_CLKRANGE_20_35M | MII_BUSY, &mac_p->miiaddr);
 
 	start = get_timer(0);
 	while (get_timer(start) < timeout) {
@@ -313,7 +314,8 @@ static int eth_mdio_write(struct eth_device *dev, u8 addr, u8 reg, u16 val)
 	miiaddr = ((addr << MIIADDRSHIFT) & MII_ADDRMSK) | \
 		  ((reg << MIIREGSHIFT) & MII_REGMSK) | MII_WRITE;
 
-	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
+//	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
+	writel(miiaddr | MII_CLKRANGE_20_35M | MII_BUSY, &mac_p->miiaddr);
 
 	start = get_timer(0);
 	while (get_timer(start) < timeout) {
