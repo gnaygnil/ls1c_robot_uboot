@@ -155,10 +155,27 @@
 						"-(user)"
 #define CONFIG_CMD_MTDPARTS
 
+/* OHCI USB */
+#define	CONFIG_CMD_USB
+#ifdef	CONFIG_CMD_USB
+#define CONFIG_USB_OHCI
+#define	CONFIG_USB_OHCI_LS1X
+//#define CONFIG_SYS_OHCI_SWAP_REG_ACCESS
+//#define CONFIG_SYS_OHCI_USE_NPS		/* force NoPowerSwitching mode */
+//#define CONFIG_SYS_USB_OHCI_CPU_INIT
+#define	CONFIG_SYS_USB_OHCI_BOARD_INIT
+#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	500
+#define	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
+#define	CONFIG_SYS_USB_OHCI_REGS_BASE		0xbfe08000
+#define	CONFIG_SYS_USB_OHCI_SLOT_NAME		"ls1x-ohci"
+#define	CONFIG_USB_STORAGE
+#endif
+
 /* File System Support */
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#define CONFIG_SUPPORT_VFAT
 
 /* Ethernet driver configuration */
 #define CONFIG_MII

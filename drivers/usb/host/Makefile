@@ -10,6 +10,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libusb_host.o
 
 # ohci
+COBJS-$(CONFIG_USB_OHCI_LS1X) += ohci-hcd-ls1x.o
 COBJS-$(CONFIG_USB_OHCI_NEW) += ohci-hcd.o
 COBJS-$(CONFIG_USB_ATMEL) += ohci-at91.o
 COBJS-$(CONFIG_USB_OHCI_DA8XX) += ohci-da8xx.o

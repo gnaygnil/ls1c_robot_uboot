@@ -4,8 +4,8 @@
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
-#define uncached(x) KSEG1ADDR(x)
-#define tobus(x)    (((unsigned long)(x)&0x1fffffff) )
+#define UNCACHED(x) KSEG1ADDR(x)
+#define tobus(x)    (((unsigned long)(x) & 0x1fffffff))
 #define CACHED_MEMORY_ADDR      0x80000000
 #define UNCACHED_MEMORY_ADDR    0xa0000000
 
@@ -86,5 +86,15 @@
 /* ETH GMAC */
 #define LS1X_GMAC0_BASE		0xbfe10000
 #define LS1X_GMAC1_BASE		0xbfe20000
+
+/* USB */
+#if defined(CONFIG_CPU_LOONGSON1C)
+#define	LS1X_OTG_BASE	0xbfe00000
+#define LS1X_EHCI_BASE	0xbfe20000
+#define LS1X_OHCI_BASE	0xbfe28000
+#else
+#define LS1X_EHCI_BASE 	0xbfe00000
+#define LS1X_OHCI_BASE 	0xbfe08000
+#endif
 
 #endif

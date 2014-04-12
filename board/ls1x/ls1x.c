@@ -161,3 +161,41 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_USB_OHCI_LS1X) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
+static usb_inited = 0;
+
+int usb_board_init(void)
+{
+	if (!usb_inited) {
+		/*end usb reset*/
+#if defined(CONFIG_CPU_LOONGSON1A)
+		/* enable USB */
+		*(volatile int *)0xbfd00420 &= ~0x200000;
+		/*ls1a usb reset stop*/
+		*(volatile int *)0xbff10204 |= 0x40000000;
+#elif defined(CONFIG_CPU_LOONGSON1B) /* LS1BSOC */
+		/* enable USB */
+		*(volatile int *)0xbfd00424 &= ~0x800;
+		/*ls1b usb reset stop*/
+		*(volatile int *)0xbfd00424 |= 0x80000000;
+#elif defined(CONFIG_CPU_LOONGSON1C)
+		*(volatile int *)0xbfd00424 &= ~(1 << 31);
+		delay(100);
+		*(volatile int *)0xbfd00424 |= (1 << 31);
+#endif
+		usb_inited = 1;
+	}
+	return 0;
+}
+
+int usb_board_stop(void)
+{
+	return 0;
+}
+
+int usb_board_init_fail(void)
+{
+	return 0;
+}
+#endif
