@@ -18,6 +18,7 @@
 #define UNCACHED_TO_CACHED(x)  (PHYS_TO_CACHED(UNCACHED_TO_PHYS(x)))
 
 /* PLL Controller */
+#define LS1X_CLK_BASE	0xbfe78030
 #define LS1X_CLK_PLL_FREQ	0xbfe78030
 #define LS1X_CLK_PLL_DIV	0xbfe78034
 
@@ -95,6 +96,31 @@
 #else
 #define LS1X_EHCI_BASE 	0xbfe00000
 #define LS1X_OHCI_BASE 	0xbfe08000
+#endif
+
+/* LCD */
+#define LS1X_DC0_BASE	0xbc301240
+#ifdef CONFIG_LS1A_MACH
+#define LS1X_DC1_BASE	0xbc301250
+#define LS1X_GPU_PLL_CTRL	0xbfd00414
+#define LS1X_PIX1_PLL_CTRL	0xbfd00410
+#define LS1X_PIX2_PLL_CTRL	0xbfd00424
+#endif
+
+/* UART regs */
+#define LS1X_UART0_BASE		0xbfe40000
+#define LS1X_UART1_BASE		0xbfe44000
+#define LS1X_UART2_BASE		0xbfe48000
+#define LS1X_UART3_BASE		0xbfe4c000
+#ifdef	CONFIG_CPU_LOONGSON1B	/* Loongson 1B最多可扩展12个3线UART串口 1A只能有4个 */
+#define LS1X_UART4_BASE		0xbfe6c000
+#define LS1X_UART5_BASE		0xbfe7c000
+#define LS1X_UART6_BASE		0xbfe41000
+#define LS1X_UART7_BASE		0xbfe42000
+#define LS1X_UART8_BASE		0xbfe43000
+#define LS1X_UART9_BASE		0xbfe45000
+#define LS1X_UART10_BASE		0xbfe46000
+#define LS1X_UART11_BASE		0xbfe47000
 #endif
 
 #endif

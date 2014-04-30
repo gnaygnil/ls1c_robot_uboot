@@ -20,6 +20,9 @@ struct arch_global_data {
 	unsigned long tbl;
 	unsigned long lastinc;
 #endif
+#ifdef CONFIG_CPU_LOONGSON1
+	unsigned long pll_clk;
+#endif
 };
 
 #include <asm-generic/global_data.h>

@@ -189,6 +189,20 @@
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 #define CONFIG_GMAC0_100M
 
+/* Framebuffer and LCD */
+//#define CONFIG_PREBOOT
+#define CONFIG_VIDEO
+#define VIDEO_FB_16BPP_WORD_SWAP
+#define CONFIG_VIDEO_LS1X
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_LOGO
+
 /*
  * Command line configuration.
  */

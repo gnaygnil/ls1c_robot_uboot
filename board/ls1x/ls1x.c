@@ -134,6 +134,7 @@ static void calc_clocks(void)
 		gd->cpu_clk = ((ctrl&0x300)==0x300) ? APB_CLK : (ctrl&(1<<25)) ? md_pllfreq/((ctrl>>20)&0x1f) : md_pllfreq/2;
 		gd->mem_clk = ((ctrl&0xc00)==0xc00) ? APB_CLK : (ctrl&(1<<19)) ? md_pllfreq/((ctrl>>14)&0x1f) : md_pllfreq/2;
 		gd->bus_clk = gd->mem_clk / 2;
+		gd->arch.pll_clk = md_pllfreq;
 	}
 #elif defined(CONFIG_CPU_LOONGSON1C)
 	{
@@ -151,6 +152,7 @@ static void calc_clocks(void)
 		}
 		gd->mem_clk = gd->cpu_clk / ((1 << ((pll_freq & 0x3) + 1)) % 5);
 		gd->bus_clk = gd->mem_clk;
+		gd->arch.pll_clk = md_pllfreq;
 	}
 #endif
 }
