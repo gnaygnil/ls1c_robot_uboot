@@ -273,7 +273,7 @@ static void start_dma_nand(unsigned int flags, struct ls1x_nand_info *info)
 	}
 /* K9F5608U0D在读的时候 ls1x的nand flash控制器读取不到完成状态
    猜测是控制器对该型号flash兼容不好,目前解决办法是添加一段延时 */
-#ifdef K9F5608U0D
+#ifdef CONFIG_NAND_LS1X_READ_DELAY
 	if (flags) {
 		if (!ls1x_nand_done(info)) {
 			printf("Wait time out!!!\n");
@@ -458,9 +458,9 @@ static void ls1x_nand_init_hw(struct ls1x_nand_info *info)
 	nand_writel(info, NAND_ADDR_L, 0x00);
 	nand_writel(info, NAND_ADDR_H, 0x00);
 	nand_writel(info, NAND_TIMING, (HOLD_CYCLE << 8) | WAIT_CYCLE);
-#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1B)
 	nand_writel(info, NAND_PARAM, 0x00000100);	/* 设置外部颗粒大小，1A 2Gb? */
-#elif defined(CONFIG_CPU_LOONGSON1B)
+#elif defined(CONFIG_CPU_LOONGSON1C)
 	nand_writel(info, NAND_PARAM, 0x08005000);
 #endif
 	nand_writel(info, NAND_OPNUM, 0x00);

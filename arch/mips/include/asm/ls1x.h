@@ -23,11 +23,11 @@
 #define LS1X_CLK_PLL_DIV	0xbfe78034
 
 /* GPIO Controller */
-#if defined(LS1ASOC)
+#if defined(CONFIG_CPU_LOONGSON1A)
 #define LS1X_GPIO_COUNT	64
-#elif defined(LS1BSOC)
+#elif defined(CONFIG_CPU_LOONGSON1B)
 #define LS1X_GPIO_COUNT 96
-#elif defined(LS1CSOC)
+#elif defined(CONFIG_CPU_LOONGSON1C)
 #define LS1X_GPIO_COUNT 128
 #endif
 
@@ -43,7 +43,7 @@
 #define LS1X_GPIO_IN1		0xbfd010e4
 #define LS1X_GPIO_OUT1		0xbfd010f4
 
-#ifdef LS1ASOC
+#ifdef CONFIG_CPU_LOONGSON1A
 /* GPIO 64-87 group 2 */
 #define LS1X_GPIO_CFG2		0xbfd010c8
 #define LS1X_GPIO_OE2		0xbfd010d8
@@ -51,7 +51,7 @@
 #define LS1X_GPIO_OUT2		0xbfd010f8
 #endif
 
-#ifdef LS1CSOC
+#ifdef CONFIG_CPU_LOONGSON1C
 /* GPIO 64-95 group 2 */
 #define LS1X_GPIO_CFG2		0xbfd010c8
 #define LS1X_GPIO_OE2		0xbfd010d8
@@ -100,7 +100,7 @@
 
 /* LCD */
 #define LS1X_DC0_BASE	0xbc301240
-#ifdef CONFIG_LS1A_MACH
+#ifdef CONFIG_CPU_LOONGSON1A
 #define LS1X_DC1_BASE	0xbc301250
 #define LS1X_GPU_PLL_CTRL	0xbfd00414
 #define LS1X_PIX1_PLL_CTRL	0xbfd00410

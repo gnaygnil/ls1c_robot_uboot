@@ -18,6 +18,7 @@
 #include <asm/reboot.h>
 
 #include <asm/ls1x.h>
+#include <asm/arch/regs-clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,7 +56,7 @@ int checkboard(void)
 	set_io_port_base(0x0);
 
 	printf("checkboard\n");
-	printf("Board: ls1b ");
+	printf("Board: %s ", CONFIG_CPU_NAME);
 	printf("(CPU Speed %ld MHz/ Mem @ %ld MHz/ Bus @ %ld MHz)\n", gd->cpu_clk/1000000, gd->mem_clk/1000000, gd->bus_clk/1000000);
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
@@ -113,7 +114,7 @@ int board_eth_init(bd_t *bis)
 
 static void calc_clocks(void)
 {
-	unsigned int md_pllfreq;
+	unsigned long pll_freq;
 
 #if defined(CONFIG_CPU_LOONGSON1A)
 	{
@@ -130,29 +131,29 @@ static void calc_clocks(void)
 	{
 		unsigned int pll = readl(LS1X_CLK_PLL_FREQ);
 		unsigned int ctrl = readl(LS1X_CLK_PLL_DIV);
-		md_pllfreq = (12+(pll&0x3f))*APB_CLK/2 + ((pll>>8)&0x3ff)*APB_CLK/2/1024;
-		gd->cpu_clk = ((ctrl&0x300)==0x300) ? APB_CLK : (ctrl&(1<<25)) ? md_pllfreq/((ctrl>>20)&0x1f) : md_pllfreq/2;
-		gd->mem_clk = ((ctrl&0xc00)==0xc00) ? APB_CLK : (ctrl&(1<<19)) ? md_pllfreq/((ctrl>>14)&0x1f) : md_pllfreq/2;
+		pll_freq = (12 + (pll & 0x3f)) * APB_CLK / 2 + ((pll >> 8) & 0x3ff) * APB_CLK / 1024 / 2;
+		gd->cpu_clk = pll_freq / ((ctrl & DIV_CPU) >> DIV_CPU_SHIFT);
+		gd->mem_clk = pll_freq / ((ctrl & DIV_DDR) >> DIV_DDR_SHIFT);
 		gd->bus_clk = gd->mem_clk / 2;
-		gd->arch.pll_clk = md_pllfreq;
+		gd->arch.pll_clk = pll_freq;
 	}
 #elif defined(CONFIG_CPU_LOONGSON1C)
 	{
 		unsigned int pll_freq = readl(LS1X_CLK_PLL_FREQ);
 		unsigned int clk_div = readl(LS1X_CLK_PLL_DIV);
-		md_pllfreq = ((pll_freq >> 8) & 0xff) * APB_CLK / 4;
+		pll_freq = ((pll_freq >> 8) & 0xff) * APB_CLK / 4;
 		if (clk_div & DIV_CPU_SEL) {
 			if(clk_div & DIV_CPU_EN) {
-				gd->cpu_clk = md_pllfreq / ((clk_div & DIV_CPU) >> DIV_CPU_SHIFT);
+				gd->cpu_clk = pll_freq / ((clk_div & DIV_CPU) >> DIV_CPU_SHIFT);
 			} else {
-				gd->cpu_clk = md_pllfreq / 2;
+				gd->cpu_clk = pll_freq / 2;
 			}
 		} else {
 			gd->cpu_clk = APB_CLK;
 		}
 		gd->mem_clk = gd->cpu_clk / ((1 << ((pll_freq & 0x3) + 1)) % 5);
 		gd->bus_clk = gd->mem_clk;
-		gd->arch.pll_clk = md_pllfreq;
+		gd->arch.pll_clk = pll_freq;
 	}
 #endif
 }
@@ -176,14 +177,14 @@ int usb_board_init(void)
 		*(volatile int *)0xbfd00420 &= ~0x200000;
 		/*ls1a usb reset stop*/
 		*(volatile int *)0xbff10204 |= 0x40000000;
-#elif defined(CONFIG_CPU_LOONGSON1B) /* LS1BSOC */
+#elif defined(CONFIG_CPU_LOONGSON1B)
 		/* enable USB */
 		*(volatile int *)0xbfd00424 &= ~0x800;
 		/*ls1b usb reset stop*/
 		*(volatile int *)0xbfd00424 |= 0x80000000;
 #elif defined(CONFIG_CPU_LOONGSON1C)
 		*(volatile int *)0xbfd00424 &= ~(1 << 31);
-		delay(100);
+		udelay(100);
 		*(volatile int *)0xbfd00424 |= (1 << 31);
 #endif
 		usb_inited = 1;

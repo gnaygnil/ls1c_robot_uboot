@@ -27,13 +27,13 @@ int gpio_set_value(unsigned gpio, int value)
 		offset = gpio - 32;
 		reg_out = LS1X_GPIO_OUT1;
 		break;
-#if defined(LS1ASOC) || defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
 	case 2:
 		offset = gpio - 64;
 		reg_out = LS1X_GPIO_OUT2;
 		break;
 #endif
-#if defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1C)
 	case 3:
 		offset = gpio - 96;
 		reg_out = LS1X_GPIO_OUT3;
@@ -68,13 +68,13 @@ int gpio_get_value(unsigned gpio)
 		offset = gpio - 32;
 		reg_in = LS1X_GPIO_IN1;
 		break;
-#if defined(LS1ASOC) || defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
 	case 2:
 		offset = gpio - 64;
 		reg_in = LS1X_GPIO_IN2;
 		break;
 #endif
-#if defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1C)
 	case 3:
 		offset = gpio - 96;
 		reg_in = LS1X_GPIO_IN3;
@@ -109,13 +109,13 @@ int gpio_free(unsigned gpio)
 		offset = gpio - 32;
 		reg_cfg = LS1X_GPIO_CFG1;
 		break;
-#if defined(LS1ASOC) || defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
 	case 2:
 		offset = gpio - 64;
 		reg_cfg = LS1X_GPIO_CFG2;
 		break;
 #endif
-#if defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1C)
 	case 3:
 		offset = gpio - 96;
 		reg_cfg = LS1X_GPIO_CFG3;
@@ -149,14 +149,14 @@ int gpio_direction_input(unsigned gpio)
 		reg_cfg = LS1X_GPIO_CFG1;
 		reg_oe = LS1X_GPIO_OE1;
 		break;
-#if defined(LS1ASOC) || defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
 	case 2:
 		offset = gpio - 64;
 		reg_cfg = LS1X_GPIO_CFG2;
 		reg_oe = LS1X_GPIO_OE2;
 		break;
 #endif
-#if defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1C)
 	case 3:
 		offset = gpio - 96;
 		reg_cfg = LS1X_GPIO_CFG3;
@@ -197,14 +197,14 @@ int gpio_direction_output(unsigned gpio, int value)
 		reg_cfg = LS1X_GPIO_CFG1;
 		reg_oe = LS1X_GPIO_OE1;
 		break;
-#if defined(LS1ASOC) || defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1C)
 	case 2:
 		offset = gpio - 64;
 		reg_cfg = LS1X_GPIO_CFG2;
 		reg_oe = LS1X_GPIO_OE2;
 		break;
 #endif
-#if defined(LS1CSOC)
+#if defined(CONFIG_CPU_LOONGSON1C)
 	case 3:
 		offset = gpio - 96;
 		reg_cfg = LS1X_GPIO_CFG3;

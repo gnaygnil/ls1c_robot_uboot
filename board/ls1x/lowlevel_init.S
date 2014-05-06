@@ -11,15 +11,18 @@
 
 #include <config.h>
 #include <asm/regdef.h>
+#include <asm/arch/regs-clk.h>
 
 #include "ns16550.h"
 
 /* Delay macro */
 #define DELAY(count)	\
-	li v0, count;		\
-99:                     \
-	bnez    v0, 99b;	\
-	addiu   v0, -1
+	li		t0, count;	\
+99:						\
+	nop;				\
+	subu	t0, 0x1;	\
+	bnez	t0, 99b;	\
+	nop
 
 #ifdef CONFIG_CPU_UART
 #define PRINTSTR(x) \
@@ -32,71 +35,71 @@
 lowlevel_init:
 	move s0, ra
 
-/*spi speed*/
+	/* initialize spi */
 	li  t0, 0xbfe80000
-	li  t1, 0x17  // div 4, fast_read + burst_en + memory_en
-	sb  t1, 0x4(t0) // sfc_param
-
-/*ddr2 configuration,stolen from pmon by zw*/
-	li  a0, 0xbfe78030
-    /*31:dc_div_en,30-26:dc_div,25:cpu_div_en,24-20:cpu_div,19:ddr_div_en,18-14:ddr_div*/
-#if 0
-    li v1,0x92298000
-    li  a1, 0x39f0a
-#else
-	li v0,0xbfc701f0
-	lw v1,4(v0)
-	lw a1,(v0)
-
-	li v0,0xfffc0000
-	and v0,a1
-	bnez v0,1f
+	li  t1, 0x17	// div 4, fast_read + burst_en + memory_en double I/O 模式 部分SPI flash可能不支持
+	sb  t1, 0x4(t0)	// sfc_param
+	li  t1, 0x05
+	sb  t1, 0x6(t0)
 	nop
 
-	andi v0,v1,0x3f
-	bnez v0,1f
-	nop
-
-	li v0,(1<<31)|(1<<25)|(1<<19)
-	and a2,v0,v1
-	bne a2,v0,1f
-	nop
-
-	beqz v1,1f
-	nop
-	nop
-	b 2f
-	nop
+	/* initialize pll */
+#if defined(CONFIG_CPU_LOONGSON1A)
+#define DDRCFG_DATA (0x8888|(CPU_MULT-4)|((DDR_MULT-3)<<8))
+    li  t1, DDRCFG_DATA
+	li  t2, 0xa
 1:
-    li v1, 0x8a290000//(1<<31)|(4<<26)|(1<<25)|(1<<20)|(1<<19)|(2<<14)|0x2a00
-    li  a1, 0x10313
+    li  t0, 0xbfe78030
+    sw  t1, 0x0(t0)
+    nop
+    sub  t2, 0x1
+    bnez t2, 1b
+    nop
+#elif defined(CONFIG_CPU_LOONGSON1B)
+	li	t0, 0xbfe78030
+	li	t1, PLL_FREQ
+    li	t2, PLL_DIV
+	sw	t1, 0(t0)
+	sw	t2, 4(t0)
+#elif defined(CONFIG_CPU_LOONGSON1C)
+	/* config pll div for cpu and sdram */
 
-2:
+	li	t0, 0xbfe78030
+	/* 设置PLL倍频 及SDRAM分频 */
+	li	t2, PLL_FREQ
+	/* 设置CPU分频 */
+	li	t3, PLL_DIV
+	/* 注意：首先需要把分频使能位清零 */
+	li	t1, 0x2
+	sw	t1, 0x4(t0)
+	sw	t2, 0x0(t0)
+	sw	t3, 0x4(t0)
+	DELAY(4096)
 #endif
-	or v1, 0x2a00
-	sw v1, 4(a0)
-	sw a1, (a0);
 
-1:
-   lw v1,(a0)
-   bne a1,v1,1b
-   nop
-
-
-	/*disable all gpio*/
-	li	a0, 0xbfd00000
-	sw	zero, 0x10c0(a0)
-	sw	zero, 0x10c4(a0)
-	sw	zero, 0x10c8(a0)
+	/* 芯片上电默认使用gpio(输入模式）但大多时候是使用模块的功能，如lcd i2c spi ac97等
+	   所以这里把gpio都关闭，方便使用模块功能。如果上电后需要gpio输出一个确定电平，
+	   如继电器、LDE等，可以修改这里的代码。*/
+	/* disable all gpio */
+	li a0,0xbfd00000
+	sw zero,0x10c0(a0)	/* disable gpio 0-31 */
+	sw zero,0x10c4(a0)	/* disable gpio 32-63 */
+	sw zero,0x10c8(a0)	/* disable gpio 64-95 */
 
 #ifdef BUZZER
-	/* disable buzzer gpio40*/
+	/* disable buzzer */
 	li	v0, 0xbfd010c4
-	li	t0, 0x00000100
-	sw	t0, 0(v0)
-	li	v0, 0xbfd010d4
-	li	t0, 0
-	sw	t0, 0(v0)
+	lw  t0, 0x00(v0)
+	or	t0, 0x00000100
+	sw	t0, 0x00(v0)
+
+	lw  t0, 0x10(v0)
+	and	t0, 0xfffffeff
+	sw	t0, 0x10(v0)
+
+	lw  t0, 0x30(v0)
+	and	t0, 0xfffffeff
+	sw	t0, 0x30(v0)
 #endif
 
 #ifdef CONFIG_CPU_UART
@@ -137,7 +140,7 @@ cpu_win_fixup:
 	// mmap[1:0] -> destination
 	//
 	// NOTE: the address windows has priority, win0 > win1 > ... > win7
-#if defined(LS1ASOC)
+#if defined(CONFIG_CPU_LOONGSON1A)
 //	set_cpu_window(0, 0x1fc00000, 0xfff00000, 0x1fc000f3) // boot rom
 	set_cpu_window(0, 0x10000000, 0xf8000000, 0x100000d1) // PCI mem0, mem1
 	set_cpu_window(1, 0x18000000, 0xfc000000, 0x180000d1) // PCI mem2
@@ -148,7 +151,7 @@ cpu_win_fixup:
 	set_cpu_window(5, 0x00000000, 0x00000000, 0x000000f0) // everything else
 	set_cpu_window(6, 0x00000000, 0x00000000, 0x000000f0) // everything else
 	set_cpu_window(7, 0x00000000, 0x00000000, 0x000000f0) // everything else
-#elif defined(LS1BSOC)
+#elif defined(CONFIG_CPU_LOONGSON1B)
 	set_cpu_window(0, 0x1c300000, 0xfff00000, 0x1c3000d2) // dc       1M must cachable
 	set_cpu_window(1, 0x1fe10000, 0xffffe000, 0x1fe100d3) // gmac0	8K
 	set_cpu_window(2, 0x1fe20000, 0xffffe000, 0x1fe200d3) // gmac1	8K
@@ -166,12 +169,30 @@ cpu_win_fixup:
 	and t1, t1, 0xffffff00
 	ori	t1, 0xd0
 	sw	t1, 0x8(t0)
+#elif defined(CONFIG_CPU_LOONGSON1C)
+	/*	set_cpu_window(0, 0x1c280000, 0xfff80000, 0x1c280083) // camera 512K
+	set_cpu_window(1, 0x1c300000, 0xfff00000, 0x1c300081) // dc 1M
+	set_cpu_window(2, 0x1fe10000, 0xffffe000, 0x1fe10082) // gmac0	8K
+	set_cpu_window(3, 0x1fe10000, 0xffff0000, 0x1fe100d0) // gmac0	64K
+	set_cpu_window(4, 0x1f000000, 0xff000000, 0x1f000082) // AXIMUX   16M
+	set_cpu_window(5, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
+	set_cpu_window(6, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
+	set_cpu_window(7, 0x00000000, 0x00000000, 0x000000f0) // ddr 0*/
+
+	set_cpu_window(0, 0x1c280000, 0xfff80000, 0x1c2800d3) // camera
+//	set_cpu_window(1, 0x1fc00000, 0xfff00000, 0x1fc000f2) //
+	set_cpu_window(2, 0x1c300000, 0xfff00000, 0x1c3000d1) // dc 1M
+//	set_cpu_window(3, 0x1f000000, 0xff000000, 0x1f0000d2) //
+	set_cpu_window(4, 0x00000000, 0x00000000, 0x000000f0)
+	set_cpu_window(5, 0x00000000, 0x00000000, 0x000000f0)
+	set_cpu_window(6, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
+	set_cpu_window(7, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
 #endif
 	// after this fixup, the kernel code should be compiled with
 	// uncached instruction fetch patch
 
 	/* 配置内存 */
-#if defined(LS1ASOC) || defined(LS1BSOC)
+#if defined(CONFIG_CPU_LOONGSON1A) || defined(CONFIG_CPU_LOONGSON1B)
 	/*
 	 * set *_ssel and *_tsel
 	 * *_ssel参数用于配置DDR IO的驱动强度 01: 弱驱动 11: 强驱动
@@ -180,7 +201,7 @@ cpu_win_fixup:
 	 */
 	li	t0, 0xbfd010c8
 	li	t1, 0xfc000000
-#ifdef LS1ASOC
+#ifdef CONFIG_CPU_LOONGSON1A
 	li	t1, 0x00000000
 #endif
 	sw	t1, (t0)
@@ -188,83 +209,88 @@ cpu_win_fixup:
 	li	t1, 0x14000000
 	sw	t1, (t0)
 
-	PRINTSTR("DDR2 config begin\r\n")
-	bal     ddr2_config
+	/* DDR2 config begin */
+	bal	ddr2_config
 	nop
-	PRINTSTR("DDR2 config end\r\n")
-
-	/* memory size defined in conf */
-//	li msize, CONFIG_MEM_SIZE
 
 #ifdef CONFIG_DDR16BIT
 	/*16bit ddr and disable conf*/ 
-	#ifdef LS1ASOC
+	#if defined(CONFIG_CPU_LOONGSON1A)
 		li a1, 0x3
-	#elif LS1BSOC
+	#elif defined(CONFIG_CPU_LOONGSON1B)
 		li a1, 0x110000
 	#endif
 #else
 	/*disable conf*/
-	#ifdef LS1ASOC
+	#if defined(CONFIG_CPU_LOONGSON1A)
 		li a1, 0x2
-	#elif LS1BSOC
+	#elif defined(CONFIG_CPU_LOONGSON1B)
 		li a1, 0x100000
 	#endif
 #endif //#ifdef CONFIG_DDR16BIT
 
-#ifdef LS1ASOC
+#if defined(CONFIG_CPU_LOONGSON1A)
 	li a0, 0xbfd00420
-#elif LS1BSOC
+#elif defined(CONFIG_CPU_LOONGSON1B)
 	li a0, 0xbfd00424
 #endif
 	lw a2, 0x0(a0)
 	or a2, a1
 	sw a2, 0x0(a0)
 
-#elif defined(LS1CSOC)
-	li msize, MEM_SIZE
+#elif defined(CONFIG_CPU_LOONGSON1C)
+#if !defined(NAND_BOOT_EN)
 #include "sdram_cfg.S"
 
-	li  t1, 0xbfd00410
-	li  a1, SD_PARA0
-	sw  a1, 0x0(t1)
-	li  a1, SD_PARA1
-	sw  a1, 0x4(t1)
-
-    PRINTSTR("sdram init done \r\n")
+	li  	t1, 0xbfd00410
+	li		a1, SD_PARA0
+	sw		a1, 0x0(t1)
+	li		a1, SD_PARA1
+	sw		a1, 0x4(t1)
+	li		a1, SD_PARA0
+	sw		a1, 0x0(t1)
+	li		a1, SD_PARA1
+	sw		a1, 0x4(t1)
+	li		a1, SD_PARA0
+	sw		a1, 0x0(t1)
+	li		a1, SD_PARA1_EN
+	sw		a1, 0x4(t1)
 #endif
+#endif
+
+	PRINTSTR("OK...\r\n");
 
 	move	ra, s0
 	jr		ra
 	nop
 
-/* serial port configuration */
+	/* serial port configuration */
 LEAF(initserial)
-	.set noat
-	move AT,ra
+	.set	noat
+	move	AT, ra
 	
-	la	v0, CONFIG_SYS_NS16550_COM1
+	la		v0, UART_BASE_ADDR
 #ifdef	HAVE_MUT_COM
-	bal	1f
+	bal		1f
 	nop
 
-	li	a0, 0
-	la	v0, COM3_BASE_ADDR
-	bal	1f
+	li		a0, 0
+	la		v0, COM3_BASE_ADDR
+	bal		1f
 	nop
 
-	jr	AT
+	jr		AT
 	nop
 #endif
 1:
-	li	v1, FIFO_ENABLE|FIFO_RCV_RST|FIFO_XMT_RST|FIFO_TRIGGER_4
-	sb	v1, NSREG(NS16550_FIFO)(v0)
-	li	v1, CFCR_DLAB
-	sb	v1, NSREG(NS16550_CFCR)(v0)
-#if defined(LS1ASOC)
-//	li	v1, ((APB_CLK*DDR_MULT)/(2*16*CONFIG_BAUDRATE))     // 8MHz crystal,   M[7:3]=6     1fboard
-//	li	a0, 0xbfe78030
-//	lw	a0, (a0)
+	li		v1, FIFO_ENABLE|FIFO_RCV_RST|FIFO_XMT_RST|FIFO_TRIGGER_4
+	sb		v1, NSREG(NS16550_FIFO)(v0)
+	li		v1, CFCR_DLAB
+	sb		v1, NSREG(NS16550_CFCR)(v0)
+#if defined(CONFIG_CPU_LOONGSON1A)
+//	li		v1, ((APB_CLK*DDR_MULT)/(2*16*CONFIG_BAUDRATE))
+//	li		a0, 0xbfe78030
+//	lw		a0, (a0)
 	move	a0, a1
 	and		a0, 0x700
 	srl		a0, 8
@@ -275,7 +301,7 @@ LEAF(initserial)
 	li		a0, 2*16*CONFIG_BAUDRATE
 	divu	v1, a0
 	mflo	v1
-#elif defined(LS1BSOC)
+#elif defined(CONFIG_CPU_LOONGSON1B)
 	move	v1, a0
 	bnez	v1, 2f
 	nop
@@ -311,20 +337,38 @@ LEAF(initserial)
 2:
 	li		a1, 2*16*CONFIG_BAUDRATE
 	divu	v1, v1, a1
-#elif defined(LS1CSOC)
-	/* #uart3 config mux */
-	li	t1, 0xbfd011c4
-	li	t2, 0x0
-	sw	t2, 0x0(t1)
+#elif defined(CONFIG_CPU_LOONGSON1C)
+	/* uart3 config mux 默认第一复用 */
+	li		a0, 0xbfd011c4
+//	lw		a1, 0x00(a0)
+//	and		a1, 0xfffffff9
+//	sw		a1, 0x00(a0)
+	lw		a1, 0x10(a0)
+	ori		a1, 0x06
+	sw		a1, 0x10(a0)
+//	lw		a1, 0x20(a0)
+//	and		a1, 0xfffffff9
+//	sw		a1, 0x20(a0)
+//	lw		a1, 0x30(a0)
+//	and		a1, 0xfffffff9
+//	sw		a1, 0x30(a0)
 
-	li	t2, 0x6
-	sw	t2, 0x10(t1)
+/*	li		a0, 0xbfd011f0
+	lw		a1, 0x00(a0)
+	ori		a1, 0x03
+	sw		a1, 0x00(a0)*/
 
-	li	t2, 0x0
-	sw	t2, 0x20(t1)
+	/* UART2 */
+/*	li		a0, 0xbfd011c4
+	lw		a1, 0x10(a0)
+	ori		a1, 0x30
+	sw		a1, 0x10(a0)*/
 
-	li	t2, 0x0
-	sw	t2, 0x30(t1)
+	/* UART1 */
+/*	li		a0, 0xbfd011f0
+	lw		a1, 0x00(a0)
+	ori		a1, 0x0c
+	sw		a1, 0x00(a0)*/
 
 	li		a0, 0xbfe78030
 	lw		a1, 0(a0)
@@ -363,26 +407,27 @@ LEAF(initserial)
 	divu	v1, a1
 	mflo	v1				//APB_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5 / CPU_DIV
 3:
-//	li	v1, ((APB_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM / (16*CONFIG_BAUDRATE)
+//	li		v1, ((APB_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM / (16*CONFIG_BAUDRATE)
 	li		a1, 16*CONFIG_BAUDRATE
 	divu	v1, v1, a1
 #endif
-	sb	v1, NSREG(NS16550_DATA)(v0)
-	srl	v1, 8
-	sb	v1, NSREG(NS16550_IER)(v0)
-	li	v1, CFCR_8BITS
-	sb	v1, NSREG(NS16550_CFCR)(v0)
-	li	v1, MCR_DTR|MCR_RTS
-	sb	v1, NSREG(NS16550_MCR)(v0)
-	li	v1, 0x0
-	sb	v1, NSREG(NS16550_IER)(v0)
+	sb		v1, NSREG(NS16550_DATA)(v0)
+	srl		v1, 8
+	sb		v1, NSREG(NS16550_IER)(v0)
+	li		v1, CFCR_8BITS
+	sb		v1, NSREG(NS16550_CFCR)(v0)
+	li		v1, MCR_DTR|MCR_RTS
+	sb		v1, NSREG(NS16550_MCR)(v0)
+	li		v1, 0x0
+	sb		v1, NSREG(NS16550_IER)(v0)
         
 	#disable all interrupt
-	li  v1, 0x0
-	sb  v1, NSREG(NS16550_IER)(v0)
-	j   ra
+	li  	v1, 0x0
+	sb  	v1, NSREG(NS16550_IER)(v0)
+	j   	ra
 	nop
-	.set at
+
+	.set 	at
 END(initserial)
 
 stringserial:
@@ -405,7 +450,7 @@ stringserial:
 
 
 tgt_putchar:
-	la		v0, CONFIG_SYS_NS16550_COM1
+	la		v0, UART_BASE_ADDR
 1:
 	lbu		v1, NSREG(NS16550_LSR)(v0)
 	and		v1, LSR_TXRDY
@@ -414,7 +459,7 @@ tgt_putchar:
 
 	sb		a0, NSREG(NS16550_DATA)(v0)
 	move	v1, v0
-	la		v0, CONFIG_SYS_NS16550_COM1
+	la		v0, UART_BASE_ADDR
 	bne		v0, v1, 1b
 	nop
 	j		ra

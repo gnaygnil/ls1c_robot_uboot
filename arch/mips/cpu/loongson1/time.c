@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/mipsregs.h>
+#include <asm/arch/regs-clk.h>
 
 static unsigned long timestamp;
 
