@@ -9,6 +9,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libi2c.o
 
+COBJS-$(CONFIG_LS1X_I2C) += ls1x_i2c.o
 COBJS-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
 COBJS-$(CONFIG_DRIVER_DAVINCI_I2C) += davinci_i2c.o
 COBJS-$(CONFIG_DW_I2C) += designware_i2c.o

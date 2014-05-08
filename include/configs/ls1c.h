@@ -195,6 +195,13 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 
+/* I2C settings */
+#define CONFIG_LS1X_I2C	1
+#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_SLAVE		0
+#define CONFIG_CMD_I2C
+
 /*
  * Command line configuration.
  */

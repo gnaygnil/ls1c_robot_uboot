@@ -123,4 +123,9 @@
 #define LS1X_UART11_BASE		0xbfe47000
 #endif
 
+/* I2C */
+#define LS1X_I2C0_BASE		0xbfe58000
+#define LS1X_I2C1_BASE		0xbfe68000
+#define LS1X_I2C2_BASE		0xbfe70000
+
 #endif

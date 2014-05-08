@@ -17,6 +17,11 @@
 #include <onenand_uboot.h>
 #include <spi.h>
 
+#if defined(CONFIG_HARD_I2C) || \
+	defined(CONFIG_SYS_I2C)
+#include <i2c.h>
+#endif
+
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
 #endif
@@ -84,6 +89,19 @@ static int init_baudrate(void)
 	return 0;
 }
 
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
+static int init_func_i2c(void)
+{
+	puts("I2C:   ");
+#ifdef CONFIG_SYS_I2C
+	i2c_init_all();
+#else
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+	puts("ready\n");
+	return (0);
+}
+#endif
 
 /*
  * Breath some life into the board...
@@ -119,6 +137,9 @@ init_fnc_t *init_sequence[] = {
 	console_init_f,
 	display_banner,		/* say that we are here */
 	checkboard,
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
+	init_func_i2c,
+#endif
 	init_func_ram,
 	NULL,
 };
