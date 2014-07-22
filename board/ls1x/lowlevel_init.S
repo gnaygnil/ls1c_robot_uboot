@@ -86,22 +86,6 @@ lowlevel_init:
 	sw zero,0x10c4(a0)	/* disable gpio 32-63 */
 	sw zero,0x10c8(a0)	/* disable gpio 64-95 */
 
-#ifdef BUZZER
-	/* disable buzzer */
-	li	v0, 0xbfd010c4
-	lw  t0, 0x00(v0)
-	or	t0, 0x00000100
-	sw	t0, 0x00(v0)
-
-	lw  t0, 0x10(v0)
-	and	t0, 0xfffffeff
-	sw	t0, 0x10(v0)
-
-	lw  t0, 0x30(v0)
-	and	t0, 0xfffffeff
-	sw	t0, 0x30(v0)
-#endif
-
 #ifdef CONFIG_CPU_UART
 	li	a0, 0
 	bal	initserial

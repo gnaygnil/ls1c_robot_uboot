@@ -48,7 +48,7 @@ void _machine_restart(void)
 
 phys_size_t initdram(int board_type)
 {
-	return get_ram_size ((long *)CONFIG_SYS_SDRAM_BASE, 0x04000000);
+	return get_ram_size ((long *)CONFIG_SYS_SDRAM_BASE, CONFIG_MEM_SIZE);
 }
 
 int checkboard(void)
@@ -58,9 +58,7 @@ int checkboard(void)
 	printf("checkboard\n");
 	printf("Board: %s ", CONFIG_CPU_NAME);
 	printf("(CPU Speed %ld MHz/ Mem @ %ld MHz/ Bus @ %ld MHz)\n", gd->cpu_clk/1000000, gd->mem_clk/1000000, gd->bus_clk/1000000);
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
-#endif
+
 	return 0;
 }
 

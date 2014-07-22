@@ -9,14 +9,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG  1
+//#define DEBUG  1
 
 #define CONFIG_MIPS32		1
 #define CONFIG_CPU_LOONGSON1
 #define CONFIG_CPU_LOONGSON1B
 #define CONFIG_CPU_NAME	"loongson 1b"
 #define LS1BSOC 1
-#define BUZZER 1
 
 #define OSC_CLK			33000000 /* Hz */
 #define APB_CLK 		OSC_CLK
@@ -79,7 +78,7 @@
 #define STATUS_LED_STATE1		STATUS_LED_OFF
 #define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 100)
 
-/* LED 2 */
+/* buzzer LED 2 */
 #define STATUS_LED_BIT2			40
 #define STATUS_LED_STATE2		STATUS_LED_OFF
 #define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 1000)

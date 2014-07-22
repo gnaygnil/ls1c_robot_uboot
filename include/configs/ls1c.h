@@ -16,7 +16,6 @@
 #define CONFIG_CPU_LOONGSON1C
 #define CONFIG_CPU_NAME	"loongson 1c"
 #define LS1CSOC 1
-//#define BUZZER 1
 
 
 #define OSC_CLK			24000000 /* Hz */
@@ -71,6 +70,20 @@
 
 /* GPIO */
 #define CONFIG_LS1X_GPIO
+
+/* LED configuration */
+#define CONFIG_GPIO_LED
+#define CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
+
+/* The LED PINs */
+/* buzzer LED 0 */
+#define STATUS_LED_BIT2			37
+#define STATUS_LED_STATE2		STATUS_LED_OFF
+#define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 1000)
+
+/* Boot status LED */
+#define STATUS_LED_BOOT			0 /* LED 0 */
 
 /* UART */
 #define CONFIG_CPU_UART

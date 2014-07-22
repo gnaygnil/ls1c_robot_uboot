@@ -276,6 +276,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			TOTAL_MALLOC_LEN, TOTAL_MALLOC_LEN);
 
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+#endif
+
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init();
