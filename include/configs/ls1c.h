@@ -218,6 +218,18 @@
 #define CONFIG_CMD_I2C
 
 /*
+ * PCA9554 is at I2C1-0x3f (I know it says "PCA953X", it's a PCA9554).  You
+ * must first select the I2C1 bus with "i2c dev 1" or the "pca953x" command
+ * will not be able to access the chip.
+ */
+#define CONFIG_PCA953X
+#define CONFIG_CMD_PCA953X
+#define CONFIG_CMD_PCA953X_INFO
+#define CONFIG_SYS_I2C_PCA953X_ADDR	0x20
+#define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x20, 16} }
+#define CONFIG_BACKLIGHT_GPIO 10
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>

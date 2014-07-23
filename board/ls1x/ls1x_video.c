@@ -9,6 +9,8 @@
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 
+#include <pca953x.h>
+
 #include <asm/gpio.h>
 #include <asm/ls1x.h>
 #include <asm/arch/ls1xfb.h>
@@ -55,6 +57,25 @@ struct ls1xfb_mach_info ls1x_lcd0_info = {
 	.invert_pixde	= 0,
 };
 
+static void backlight(int on)
+{
+	if (on) {
+	#ifdef CONFIG_PCA953X
+		pca953x_set_dir(CONFIG_SYS_I2C_PCA953X_ADDR, 
+		  1 << CONFIG_BACKLIGHT_GPIO, PCA953X_DIR_OUT << CONFIG_BACKLIGHT_GPIO);
+		pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR, 
+		  1 << CONFIG_BACKLIGHT_GPIO, 1 << CONFIG_BACKLIGHT_GPIO);
+	#endif
+	} else {
+	#ifdef CONFIG_PCA953X
+		pca953x_set_dir(CONFIG_SYS_I2C_PCA953X_ADDR, 
+		  1 << CONFIG_BACKLIGHT_GPIO, PCA953X_DIR_OUT << CONFIG_BACKLIGHT_GPIO);
+		pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR, 
+		  1 << CONFIG_BACKLIGHT_GPIO, 0 << CONFIG_BACKLIGHT_GPIO);
+	#endif
+	}
+}
+
 int board_video_skip(void)
 {
 	int ret;
@@ -71,16 +92,18 @@ int board_video_skip(void)
 		}
 		if (ret)
 			printf("Panel cannot be configured: %d\n", ret);
-		return ret;
+	} else {
+		/*
+		 * 'panel' env variable not found or has different value than 'at043tn13'
+		 *  Defaulting to at043tn13 lcd.
+		 */
+		ret = ls1x_fb_init(&at043tn13, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
+		if (ret)
+			printf("at043tn13 cannot be configured: %d\n", ret);
 	}
 
-	/*
-	 * 'panel' env variable not found or has different value than 'at043tn13'
-	 *  Defaulting to at043tn13 lcd.
-	 */
-	ret = ls1x_fb_init(&at043tn13, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
-	if (ret)
-		printf("at043tn13 cannot be configured: %d\n", ret);
+	backlight(1);
+
 	return ret;
 }
 

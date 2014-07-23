@@ -106,7 +106,7 @@ static int ls1x_xfer_write(unsigned char *buf, int length)
 			return length;
 		}
 	}
-	ls1x_i2c->cr_sr = OCI2C_CMD_STOP;
+//	ls1x_i2c->cr_sr = OCI2C_CMD_STOP;
 
 	return 0;
 }
@@ -149,10 +149,13 @@ static int i2c_transfer(struct i2c_msg *pmsg, int num)
 			return -1;
 		}
 
- 		if (pmsg->flags & I2C_M_RD)
+ 		if (pmsg->flags & I2C_M_RD) {
 			ret = ls1x_xfer_read(pmsg->buf, pmsg->len);
-  		else
+		}
+  		else {
 			ret = ls1x_xfer_write(pmsg->buf, pmsg->len);
+			ls1x_i2c->cr_sr = OCI2C_CMD_STOP;
+		}
 
 		if (ret)
 			return ret;
@@ -250,16 +253,44 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
  */
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
+	int ret;
+
 	uchar addr_buffer[] = {
 		(addr >>  0),
 		(addr >>  8),
 		(addr >> 16),
 	};
-	struct i2c_msg msg[2] = { { chip, 0, alen, addr_buffer },
-	                          { chip, 0, len, buffer }
-	                        };
 
-	return i2c_transfer(msg, 2);
+	if (!ls1x_poll_status(OCI2C_STAT_BUSY)) {
+		return -1;
+	}
+
+	ls1x_i2c->data = (chip << 1) | 0;
+	ls1x_i2c->cr_sr = OCI2C_CMD_START;
+
+	/* Wait until transfer is finished */
+	if (!ls1x_poll_status(OCI2C_STAT_TIP)) {
+		printf("TXCOMP timeout\n");
+		return -1;
+	}
+
+	if (ls1x_i2c->cr_sr & OCI2C_STAT_NACK) {
+		printf("slave addr no ack !!\n");
+		ls1x_i2c->cr_sr = OCI2C_CMD_STOP;
+		return -1;
+	}
+
+	ret = ls1x_xfer_write(addr_buffer, alen);
+	if (ret)
+		return ret;
+
+	ret = ls1x_xfer_write(buffer, len);
+	if (ret)
+		return ret;
+
+	ls1x_i2c->cr_sr = OCI2C_CMD_STOP;
+
+	return 0;
 }
 
 /**
