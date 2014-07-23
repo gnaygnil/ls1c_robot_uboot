@@ -13,8 +13,6 @@
 #include <asm/ls1x.h>
 #include <asm/arch/ls1xfb.h>
 
-#define MX53LOCO_LCD_POWER		IMX_GPIO_NR(3, 24)
-
 static struct fb_videomode const at043tn13 = {
 	.name	= "AT043TN13",
 	.pixclock	= 111000,
@@ -27,6 +25,21 @@ static struct fb_videomode const at043tn13 = {
 	.vsync_len	= 10,		// 284-274
 	.upper_margin	= 4,	// 288-284
 	.lower_margin	= 2,	// 274-272
+	.sync		= FB_SYNC_VERT_HIGH_ACT | FB_SYNC_HOR_HIGH_ACT,
+};
+
+static struct fb_videomode const at070tn93 = {
+	.name	= "HX8264",	// AT070TN93
+	.pixclock	= 34209,
+	.refresh	= 60,
+	.xres		= 800,
+	.yres		= 480,
+	.hsync_len	= 48,		// 888-840
+	.left_margin	= 40,	// 928-888
+	.right_margin	= 40,	// 840-800
+	.vsync_len	= 3,		// 496-493
+	.upper_margin	= 29,	// 525-496
+	.lower_margin	= 13,	// 493-480
 	.sync		= FB_SYNC_VERT_HIGH_ACT | FB_SYNC_HOR_HIGH_ACT,
 };
 
@@ -48,21 +61,26 @@ int board_video_skip(void)
 	char const *e = getenv("panel");
 
 	if (e) {
-		if (strcmp(e, "seiko") == 0) {
+		if (strcmp(e, "at043tn13") == 0) {
+			ls1x_lcd0_info.modes = (struct fb_videomode *)&at043tn13;
 			ret = ls1x_fb_init(&at043tn13, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
-			if (ret)
-				printf("Seiko cannot be configured: %d\n", ret);
-			return ret;
 		}
+		else if (strcmp(e, "at070tn93") == 0) {
+			ls1x_lcd0_info.modes = (struct fb_videomode *)&at070tn93;
+			ret = ls1x_fb_init(&at070tn93, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
+		}
+		if (ret)
+			printf("Panel cannot be configured: %d\n", ret);
+		return ret;
 	}
 
 	/*
-	 * 'panel' env variable not found or has different value than 'seiko'
-	 *  Defaulting to claa lcd.
+	 * 'panel' env variable not found or has different value than 'at043tn13'
+	 *  Defaulting to at043tn13 lcd.
 	 */
 	ret = ls1x_fb_init(&at043tn13, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
 	if (ret)
-		printf("CLAA cannot be configured: %d\n", ret);
+		printf("at043tn13 cannot be configured: %d\n", ret);
 	return ret;
 }
 

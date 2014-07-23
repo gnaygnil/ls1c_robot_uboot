@@ -469,7 +469,7 @@ static void set_dumb_panel_control(struct fb_info *info)
 		x |= mi->invert_pixde ? LS1X_FB_PANEL_CONF_DE_POL : 0;
 		x |= mi->invert_pixclock ? LS1X_FB_PANEL_CONF_CLK_POL : 0;
 		x |= mi->de_mode ? LS1X_FB_PANEL_CONF_DE : 0;
-		writel_reg(x | 0x80001010, fbi->reg_base + LS1X_FB_PANEL_CONF);
+		writel_reg(x | 0x80001110, fbi->reg_base + LS1X_FB_PANEL_CONF);
 	}
 
 	if (!mi->de_mode) {
@@ -480,6 +480,9 @@ static void set_dumb_panel_control(struct fb_info *info)
 		x = readl(fbi->reg_base + LS1X_FB_VSYNC) & ~LS1X_FB_VSYNC_POL;
 		x |= (info->var.sync & FB_SYNC_VERT_HIGH_ACT) ? LS1X_FB_VSYNC_POL : 0;
 		writel_reg(x, fbi->reg_base + LS1X_FB_VSYNC);
+	} else {
+		writel_reg(0x0, fbi->reg_base + LS1X_FB_HSYNC);
+		writel_reg(0x0, fbi->reg_base + LS1X_FB_VSYNC);
 	}
 }
 
@@ -598,7 +601,7 @@ static int ls1xfb_init_mode(struct fb_info *info,
 	/*
 	 * Set default value
 	 */
-	refresh = default_refresh;
+	refresh = mi->modes->refresh;
 	if (default_bpp)
 		var->bits_per_pixel = default_bpp;
 

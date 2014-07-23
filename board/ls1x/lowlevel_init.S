@@ -43,6 +43,15 @@ lowlevel_init:
 	sb  t1, 0x6(t0)
 	nop
 
+	/* 设置sdram cs1复用关系，开发板使用ejtag_sel gpio_0引脚(第五复用)作为第二片sdram的片选
+	  注意sw2拨码开关的设置，使用ejtag烧录pmon时需要调整拨码开关，烧录完再调整回来 */
+#ifdef SDRAM_USE_CS1
+	li		a0, 0xbfd011c0
+	lw		a1, 0x40(a0)
+	ori	a1, 0x01
+	sw		a1, 0x40(a0)
+#endif
+
 	/* initialize pll */
 #if defined(CONFIG_CPU_LOONGSON1A)
 #define DDRCFG_DATA (0x8888|(CPU_MULT-4)|((DDR_MULT-3)<<8))
@@ -163,14 +172,14 @@ cpu_win_fixup:
 	set_cpu_window(6, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
 	set_cpu_window(7, 0x00000000, 0x00000000, 0x000000f0) // ddr 0*/
 
-	set_cpu_window(0, 0x1c280000, 0xfff80000, 0x1c2800d3) // camera
+/*	set_cpu_window(0, 0x1c280000, 0xfff80000, 0x1c2800d3) // camera
 //	set_cpu_window(1, 0x1fc00000, 0xfff00000, 0x1fc000f2) //
 	set_cpu_window(2, 0x1c300000, 0xfff00000, 0x1c3000d1) // dc 1M
 //	set_cpu_window(3, 0x1f000000, 0xff000000, 0x1f0000d2) //
 	set_cpu_window(4, 0x00000000, 0x00000000, 0x000000f0)
 	set_cpu_window(5, 0x00000000, 0x00000000, 0x000000f0)
 	set_cpu_window(6, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
-	set_cpu_window(7, 0x00000000, 0x00000000, 0x000000f0) // ddr 0
+	set_cpu_window(7, 0x00000000, 0x00000000, 0x000000f0) // ddr 0*/
 #endif
 	// after this fixup, the kernel code should be compiled with
 	// uncached instruction fetch patch

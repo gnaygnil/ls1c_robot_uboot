@@ -9,7 +9,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG  1
+//#define DEBUG  1
 
 #define CONFIG_MIPS32		1
 #define CONFIG_CPU_LOONGSON1
@@ -63,7 +63,8 @@
 #define CONFIG_SYS_LOAD_ADDR		0xa0200000
 #define CONFIG_SYS_MEMTEST_START	0xa0100000
 #define CONFIG_SYS_MEMTEST_END		0xa0800000
-#define CONFIG_MEM_SIZE 0x04000000
+#define CONFIG_MEM_SIZE 0x08000000
+#define SDRAM_USE_CS1
 
 /* misc settings */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f() */
@@ -78,9 +79,9 @@
 
 /* The LED PINs */
 /* buzzer LED 0 */
-#define STATUS_LED_BIT2			37
-#define STATUS_LED_STATE2		STATUS_LED_OFF
-#define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 1000)
+#define STATUS_LED_BIT			37
+#define STATUS_LED_STATE		STATUS_LED_OFF
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 1000)
 
 /* Boot status LED */
 #define STATUS_LED_BOOT			0 /* LED 0 */
@@ -123,9 +124,10 @@
 #define CONFIG_ENV_SIZE		0x20000
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
+	"panel=" "at070tn93" "\0"							\
 
 /* SPI_MMC Settings */
 #define CONFIG_MMC
