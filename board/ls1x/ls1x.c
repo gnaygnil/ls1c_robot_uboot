@@ -200,3 +200,11 @@ int usb_board_init_fail(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bis)
+{
+	ls1x_mmc_register(0, CONFIG_LS1X_MMC_CD, CONFIG_LS1X_MMC_WP);
+	return 0;
+}
+#endif

@@ -128,4 +128,7 @@
 #define LS1X_I2C1_BASE		0xbfe68000
 #define LS1X_I2C2_BASE		0xbfe70000
 
+/* SDIO */
+#define LS1X_SDIO_BASE		0xbfe6c000
+
 #endif

@@ -129,14 +129,18 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
 	"panel=" "at070tn93" "\0"							\
 
-/* SPI_MMC Settings */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_SPI
+#define CONFIG_CMD_MMC
+/* SDIO_MMC Settings */
+#define CONFIG_LS1X_MMC
+#define CONFIG_LS1X_MMC_CD 84
+#define CONFIG_LS1X_MMC_WP 32
+/* SPI_MMC Settings */
+/*#define CONFIG_MMC_SPI
 #define CONFIG_MMC_SPI_BUS 0
 #define CONFIG_MMC_SPI_CS 2
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_MMC_SPI
+#define CONFIG_CMD_MMC_SPI*/
 
 /* RTC configuration */
 #define CONFIG_RTC_LS1X
@@ -239,5 +243,9 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
+
+/* Other helpful shell-like commands */
+#define CONFIG_MD5
+#define CONFIG_CMD_MD5SUM
 
 #endif	/* __CONFIG_H */

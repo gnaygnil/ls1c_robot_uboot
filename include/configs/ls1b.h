@@ -128,13 +128,13 @@
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 
-/* SPI_MMC Settings */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_MMC
+/* SPI_MMC Settings */
 #define CONFIG_MMC_SPI
 #define CONFIG_MMC_SPI_BUS 0
 #define CONFIG_MMC_SPI_CS 2
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_MMC_SPI
 
 /* RTC configuration */
@@ -216,5 +216,9 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
+
+/* Other helpful shell-like commands */
+#define CONFIG_MD5
+#define CONFIG_CMD_MD5SUM
 
 #endif	/* CONFIG_H */

@@ -23,6 +23,7 @@ COBJS-$(CONFIG_MXC_MMC) += mxcmmc.o
 COBJS-$(CONFIG_MXS_MMC) += mxsmmc.o
 COBJS-$(CONFIG_OMAP_HSMMC) += omap_hsmmc.o
 COBJS-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
+COBJS-$(CONFIG_LS1X_MMC) += ls1x_mmc.o
 COBJS-$(CONFIG_SDHCI) += sdhci.o
 COBJS-$(CONFIG_BCM2835_SDHCI) += bcm2835_sdhci.o
 COBJS-$(CONFIG_S5P_SDHCI) += s5p_sdhci.o
