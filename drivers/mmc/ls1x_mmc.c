@@ -41,6 +41,35 @@ static void __iomem *order_addr_in;
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct ls1x_sdio_regs {
+	unsigned int SDICON;			//0
+	unsigned int SDIPRE;			//4
+	unsigned int SDICMDARG;		//8
+	unsigned int SDICMDCON;		//c
+	unsigned int SDICMDSTAT;	//10
+	unsigned int SDIRSP0;		//14
+	unsigned int SDIRSP1;		//18
+	unsigned int SDIRSP2;		//1c
+	unsigned int SDIRSP3;		//20
+	unsigned int SDITIMER;		//24
+	unsigned int SDIBSIZE;		//28
+	unsigned int SDIDCON;		//2c
+	unsigned int SDIDCNT;		//30
+	unsigned int SDIDSTA;		//34
+	unsigned int SDIFSTA;		//38
+	unsigned int SDIIMSK;		//3c
+	unsigned int SDIDATA;		//40
+	unsigned int SDIDATA0;		//44
+	unsigned int SDIDATA1;		//48
+	unsigned int SDIDATA2;		//4c
+	unsigned int SDIDATA3;		//50
+	unsigned int SDIDATA4;		//54
+	unsigned int SDIDATA5;		//58
+	unsigned int SDIDATA6;		//5c
+	unsigned int SDIDATA7;		//60
+	unsigned int SDIINTEN;		//64
+};
+
 struct ls1x_mmc_priv {
 //	struct ls1x_mmc_regs *regs;
 	void __iomem *base;
@@ -53,6 +82,8 @@ struct ls1x_mmc_priv {
 	dma_addr_t		dma_desc_phys;
 	size_t			dma_desc_size;
 };
+
+static struct ls1x_sdio_regs *regs = (void *)LS1X_SDIO_BASE;
 
 /**
  * Finish a request
@@ -92,7 +123,7 @@ static unsigned ls1x_setup_clock_speed(struct ls1x_mmc_priv *priv, unsigned nc)
 		debug("SD/MMC clock might be too high!\n");
 	}
 
-	writel(mci_psc, priv->base + SDIPRE);
+	writel(mci_psc, &regs->SDIPRE);
 
 	return clock;
 }
@@ -106,9 +137,9 @@ static unsigned ls1x_setup_clock_speed(struct ls1x_mmc_priv *priv, unsigned nc)
 static void ls1x_mci_reset(struct ls1x_mmc_priv *priv)
 {
 	/* reset the hardware */
-	writel(SDICON_SDRESET, priv->base + SDICON);
+	writel(SDICON_SDRESET, &regs->SDICON);
 	/* wait until reset it finished */
-	while (readl(priv->base + SDICON) & SDICON_SDRESET)
+	while (readl(&regs->SDICON) & SDICON_SDRESET)
 		;
 }
 
@@ -121,26 +152,22 @@ static int ls1x_mci_initialize(struct ls1x_mmc_priv *priv, struct mmc *mmc)
 {
 	ls1x_mci_reset(priv);
 
-	writel(0xffffffff, priv->base + SDIINTEN);
+	writel(0xffffffff, &regs->SDIINTEN);
 	/* restore last settings */
 	priv->clock = ls1x_setup_clock_speed(priv, priv->clock);
-	writel(0x00FFFFFF, priv->base + SDITIMER);
-	writel(512, priv->base + SDIBSIZE);
+	writel(0x00FFFFFF, &regs->SDITIMER);
+	writel(512, &regs->SDIBSIZE);
 	return 0;
 }
 
 /**
  * Prepare engine's bits for the next command transfer
  * @param cmd_flags MCI's command flags
- * @param data_flags MCI's data flags
  * @return Register bits for this transfer
  */
-static uint32_t ls1x_prepare_command_setup(unsigned cmd_flags, unsigned data_flags)
+static uint32_t ls1x_prepare_command_setup(unsigned cmd_flags)
 {
-	uint32_t reg = 0;
-
-	/* source (=host) */
-	reg = SDICMDCON_SENDERHOST;
+	uint32_t reg = SDICMDCON_SENDERHOST;
 
 	if (cmd_flags & MMC_RSP_PRESENT) {
 		reg |= SDICMDCON_WAITRSP;
@@ -150,16 +177,14 @@ static uint32_t ls1x_prepare_command_setup(unsigned cmd_flags, unsigned data_fla
 		reg |= SDICMDCON_LONGRSP;
 		debug("Command with long response\n");
 	}
-	if (cmd_flags & MMC_RSP_CRC) {
+/*	if (cmd_flags & MMC_RSP_CRC) {
 //		reg |= SDICMDCON_CRCCHECK;
 //		debug("Command with crc check\n");
 	}
 	if (cmd_flags & MMC_RSP_BUSY)
-		; /* FIXME */
+		; 
 	if (cmd_flags & MMC_RSP_OPCODE)
-		; /* FIXME */
-	if (data_flags != 0)
-		reg |= SDICMDCON_WITHDATA;
+		;*/
 
 	return reg;
 }
@@ -203,10 +228,10 @@ static int ls1x_terminate_transfer(struct ls1x_mmc_priv *priv)
 {
 	unsigned stoptries = 3;
 
-	while (readl(priv->base + SDIDSTA) & (SDIDSTA_TXDATAON | SDIDSTA_RXDATAON)) {
+	while (readl(&regs->SDIDSTA) & (SDIDSTA_TXDATAON | SDIDSTA_RXDATAON)) {
 		debug("Transfer still in progress.\n");
 
-		writel(SDIDCON_STOP, priv->base + SDIDCON);
+		writel(SDIDCON_STOP, &regs->SDIDCON);
 		ls1x_mci_initialize(priv, NULL);
 
 		if ((stoptries--) == 0) {
@@ -228,11 +253,11 @@ static int ls1x_prepare_data_transfer(struct ls1x_mmc_priv *priv, struct mmc_dat
 {
 	uint32_t reg;
 
-	writel(data->blocksize, priv->base + SDIBSIZE);
+	writel(data->blocksize, &regs->SDIBSIZE);
 	reg = ls1x_prepare_data_setup(priv, data->flags);
 	reg |= (data->blocks & SDIDCON_BLKNUM);
-	writel(reg, priv->base + SDIDCON);
-	writel(0x00FFFFFF, priv->base + SDITIMER);
+	writel(reg, &regs->SDIDCON);
+	writel(0x00FFFFFF, &regs->SDITIMER);
 
 	return 0;
 }
@@ -250,49 +275,46 @@ static int ls1x_send_command(struct ls1x_mmc_priv *priv, struct mmc_cmd *cmd,
 	uint32_t reg;
 	int rc;
 
-	writel(0x00FFFFFF, priv->base + SDITIMER);
+	writel(0x00FFFFFF, &regs->SDITIMER);
 
 	/* setup argument */
-	writel(cmd->cmdarg, priv->base + SDICMDARG);
+	writel(cmd->cmdarg, &regs->SDICMDARG);
 
 	/* setup command and transfer characteristic */
-	reg = ls1x_prepare_command_setup(cmd->resp_type, data != NULL ? data->flags : 0);
+	reg = ls1x_prepare_command_setup(cmd->resp_type);
 	reg |= cmd->cmdidx & SDICMDCON_INDEX;
 
 	/* run the command right now */
-	writel(reg | SDICMDCON_CMDSTART, priv->base + SDICMDCON);
+	writel(reg | SDICMDCON_CMDSTART, &regs->SDICMDCON);
 	/* wait until command is done */
 #if 0
 	/* 分频系数调低后（即sdio时钟比较高），使用下列判断命令是否发送成功，但判断总是失败 */
 	while (1) {
-		reg = readl(priv->base + SDICMDSTAT);
+		reg = readl(&regs->SDICMDSTAT);
 		/* done? */
 		if (cmd->resp_type & MMC_RSP_PRESENT) {
 			if (reg & SDICMDSTAT_RSPFIN) {
-				writel(SDICMDSTAT_RSPFIN,
-					priv->base + SDICMDSTAT);
+				writel(SDICMDSTAT_RSPFIN, &regs->SDICMDSTAT);
 				rc = 0;
 				break;
 			} 
 		} else {
 			if (reg & SDICMDSTAT_CMDSENT) {
-					writel(SDICMDSTAT_CMDSENT,
-						priv->base + SDICMDSTAT);
+					writel(SDICMDSTAT_CMDSENT, &regs->SDICMDSTAT);
 					rc = 0;
 					break;
 			} 
 		}
 		/* timeout? */
 		if (reg & SDICMDSTAT_CMDTIMEOUT) {
-			writel(SDICMDSTAT_CMDTIMEOUT,
-				priv->base + SDICMDSTAT);
+			writel(SDICMDSTAT_CMDTIMEOUT, &regs->SDICMDSTAT);
 			rc = -ETIMEDOUT;
 			break;
 		}
 	}
 #else
 	while (1) {
-		reg = readl(priv->base + SDIIMSK);
+		reg = readl(&regs->SDIIMSK);
 		if (reg & 0x1c0) {
 			break;
 		}
@@ -304,13 +326,13 @@ static int ls1x_send_command(struct ls1x_mmc_priv *priv, struct mmc_cmd *cmd,
 		rc = -ETIMEDOUT;
 	}
 #endif
-	writel(0xffffffff, priv->base + SDIIMSK);
+	writel(0xffffffff, &regs->SDIIMSK);
 
 	if ((rc == 0) && (cmd->resp_type & MMC_RSP_PRESENT)) {
-		cmd->response[0] = readl(priv->base + SDIRSP0);
-		cmd->response[1] = readl(priv->base + SDIRSP1);
-		cmd->response[2] = readl(priv->base + SDIRSP2);
-		cmd->response[3] = readl(priv->base + SDIRSP3);
+		cmd->response[0] = readl(&regs->SDIRSP0);
+		cmd->response[1] = readl(&regs->SDIRSP1);
+		cmd->response[2] = readl(&regs->SDIRSP2);
+		cmd->response[3] = readl(&regs->SDIRSP3);
 	}
 	/* do not disable the clock! */
 	return rc;
@@ -331,9 +353,9 @@ static int ls1x_prepare_engine(struct ls1x_mmc_priv *priv)
 	if (rc != 0)
 		return rc;
 
-	writel(-1, priv->base + SDICMDSTAT);
-	writel(-1, priv->base + SDIDSTA);
-	writel(-1, priv->base + SDIFSTA);
+	writel(-1, &regs->SDICMDSTAT);
+	writel(-1, &regs->SDIDSTA);
+	writel(-1, &regs->SDIFSTA);
 
 	return 0;
 }
@@ -365,9 +387,9 @@ static int ls1x_mci_data_check(struct ls1x_mmc_priv *priv)
 	int sdiintmsk = 0;
 
 	while ((sdiintmsk & 0x1f) == 0) {
-		sdiintmsk = readl(priv->base + SDIIMSK);
+		sdiintmsk = readl(&regs->SDIIMSK);
 	}
-	writel(0xffffffff, priv->base + SDIIMSK);
+	writel(0xffffffff, &regs->SDIIMSK);
 
 	if (sdiintmsk & 0x1) {
 		return 0;
@@ -402,12 +424,12 @@ static int ls1x_mci_block_transfer(struct ls1x_mmc_priv *priv, struct mmc_cmd *c
 		writel(0x00003001, priv->dma_desc + DMA_CMD);
 	}
 
-	writel(0, priv->dma_desc + DMA_ORDERED);
+//	writel(0, priv->dma_desc + DMA_ORDERED);
 	writel(p, priv->dma_desc + DMA_SADDR);
-	writel(DMA_ACCESS_ADDR, priv->dma_desc + DMA_DADDR);
-	writel((data->blocksize * data->blocks + 3) / 4, priv->dma_desc + DMA_LENGTH);
-	writel(0, priv->dma_desc + DMA_STEP_LENGTH);
-	writel(1, priv->dma_desc + DMA_STEP_TIMES);
+//	writel(DMA_ACCESS_ADDR, priv->dma_desc + DMA_DADDR);
+	writel((data->blocksize * data->blocks + 3) >> 2, priv->dma_desc + DMA_LENGTH);
+//	writel(0, priv->dma_desc + DMA_STEP_LENGTH);
+//	writel(1, priv->dma_desc + DMA_STEP_TIMES);
 
 	writel((priv->dma_desc_phys & ~0x1F) | 0x8 | DMA_NUM, order_addr_in);	/* 启动DMA */
 	while ((readl(order_addr_in) & 0x8)/* && (timeout-- > 0)*/) {
@@ -420,7 +442,7 @@ static int ls1x_mci_block_transfer(struct ls1x_mmc_priv *priv, struct mmc_cmd *c
 		return ret;
 #if 0
 	/* 分频系数调低后（即sdio时钟比较高），使用下列判断命令是否发送成功，但判断总是失败 */
-	while (!(readl(priv->base + SDIDSTA) & SDIDSTA_XFERFINISH)) {
+	while (!(readl(&regs->SDIDSTA) & SDIDSTA_XFERFINISH)) {
 	}
 #else
 	ret = ls1x_mci_data_check(priv);
@@ -473,7 +495,7 @@ static int ls1x_mci_adtc(struct ls1x_mmc_priv *priv, struct mmc_cmd *cmd,
 		ls1x_terminate_transfer(priv);
 	}
 
-	writel(0, priv->base + SDIDCON);
+	writel(0, &regs->SDIDCON);
 
 	return rc;
 }
@@ -485,8 +507,8 @@ static int ls1x_mmc_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	int rc;
 
 	/* enable clock */
-	writel(readl(priv->base + SDICON) | SDICON_CLKEN,
-		priv->base + SDICON);
+	writel(readl(&regs->SDICON) | SDICON_CLKEN,
+		&regs->SDICON);
 
 	if ((cmd->resp_type == 0) || (data == NULL))
 		rc = ls1x_mci_std_cmds(priv, cmd);
@@ -496,8 +518,8 @@ static int ls1x_mmc_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	ls1x_finish_request(priv);
 
 	/* disable clock */
-	writel(readl(priv->base + SDICON) & ~SDICON_CLKEN,
-		priv->base + SDICON);
+	writel(readl(&regs->SDICON) & ~SDICON_CLKEN,
+		&regs->SDICON);
 	return rc;
 }
 
@@ -515,7 +537,7 @@ static void ls1x_mmc_set_ios(struct mmc *mmc)
 		break;
 	}
 
-	reg = readl(priv->base + SDICON);
+	reg = readl(&regs->SDICON);
 	if (mmc->clock) {
 		/* setup the IO clock frequency and enable it */
 		priv->clock = ls1x_setup_clock_speed(priv, mmc->clock);
@@ -524,7 +546,7 @@ static void ls1x_mmc_set_ios(struct mmc *mmc)
 		reg &= ~SDICON_CLKEN;	/* disable the clock */
 		priv->clock = 0;
 	}
-	writel(reg, priv->base + SDICON);
+	writel(reg, &regs->SDICON);
 
 	debug("IO settings: bus width=%d, frequency=%u Hz\n",
 		priv->bus_width, priv->clock);
@@ -550,7 +572,14 @@ static int ls1x_mmc_dma_init(struct ls1x_mmc_priv *priv)
 	}
 	priv->dma_desc_phys = virt_to_phys(priv->dma_desc);
 	order_addr_in = (unsigned int *)ORDER_ADDR_IN;
-	
+
+	writel(0, priv->dma_desc + DMA_ORDERED);
+//	writel(p, priv->dma_desc + DMA_SADDR);
+	writel(DMA_ACCESS_ADDR, priv->dma_desc + DMA_DADDR);
+//	writel((data->blocksize * data->blocks + 3) / 4, priv->dma_desc + DMA_LENGTH);
+	writel(0, priv->dma_desc + DMA_STEP_LENGTH);
+	writel(1, priv->dma_desc + DMA_STEP_TIMES);
+
 	return 0;
 }
 
@@ -605,9 +634,11 @@ int ls1x_mmc_register(int card_index, int cd_gpio,
 	switch (card_index) {
 	case 0:
 		priv->base = (unsigned int *)LS1X_SDIO_BASE;
+		regs = (void *)LS1X_SDIO_BASE;
 		break;
 	case 1:
 		priv->base = (unsigned int *)LS1X_SDIO_BASE;
+		regs = (void *)LS1X_SDIO_BASE;
 		break;
 	default:
 		printf("LS1X MMC: Invalid MMC controller ID (card_index = %d)\n",
