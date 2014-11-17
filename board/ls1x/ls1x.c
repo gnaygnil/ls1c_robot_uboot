@@ -201,7 +201,7 @@ int usb_board_init_fail(void)
 }
 #endif
 
-#ifdef CONFIG_CMD_MMC
+#if defined(CONFIG_CMD_MMC) && defined(CONFIG_LS1X_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	ls1x_mmc_register(0, CONFIG_LS1X_MMC_CD, CONFIG_LS1X_MMC_WP);
