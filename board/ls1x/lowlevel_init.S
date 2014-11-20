@@ -35,23 +35,6 @@
 lowlevel_init:
 	move s0, ra
 
-	/* initialize spi */
-	li  t0, 0xbfe80000
-	li  t1, 0x17	// div 4, fast_read + burst_en + memory_en double I/O 模式 部分SPI flash可能不支持
-	sb  t1, 0x4(t0)	// sfc_param
-	li  t1, 0x05
-	sb  t1, 0x6(t0)
-	nop
-
-	/* 设置sdram cs1复用关系，开发板使用ejtag_sel gpio_0引脚(第五复用)作为第二片sdram的片选
-	  注意sw2拨码开关的设置，使用ejtag烧录pmon时需要调整拨码开关，烧录完再调整回来 */
-#ifdef SDRAM_USE_CS1
-	li		a0, 0xbfd011c0
-	lw		a1, 0x40(a0)
-	ori	a1, 0x01
-	sw		a1, 0x40(a0)
-#endif
-
 	/* initialize pll */
 #if defined(CONFIG_CPU_LOONGSON1A)
 #define DDRCFG_DATA (0x8888|(CPU_MULT-4)|((DDR_MULT-3)<<8))
@@ -94,6 +77,18 @@ lowlevel_init:
 	sw zero,0x10c0(a0)	/* disable gpio 0-31 */
 	sw zero,0x10c4(a0)	/* disable gpio 32-63 */
 	sw zero,0x10c8(a0)	/* disable gpio 64-95 */
+	sw zero,0x10cc(a0)
+
+	li t0, 0xffffffff
+	sw t0, 0x10d0(a0)
+	sw t0, 0x10d4(a0)
+	sw t0, 0x10d8(a0)
+	sw t0, 0x10dc(a0)
+
+	sw t0, 0x10f0(a0)
+	sw t0, 0x10f4(a0)
+	sw t0, 0x10f8(a0)
+	sw t0, 0x10fc(a0)
 
 #ifdef CONFIG_CPU_UART
 	li	a0, 0
@@ -232,7 +227,7 @@ cpu_win_fixup:
 	sw a2, 0x0(a0)
 
 #elif defined(CONFIG_CPU_LOONGSON1C)
-#if !defined(NAND_BOOT_EN)
+#if !defined(CONFIG_NAND_BOOT_EN)
 #include "sdram_cfg.S"
 
 	li  	t1, 0xbfd00410

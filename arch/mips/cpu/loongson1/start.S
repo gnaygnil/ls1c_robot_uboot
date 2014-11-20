@@ -36,6 +36,9 @@
 	.globl _start
 	.text
 _start:
+#if defined(CONFIG_NAND_BOOT_EN) && defined(CONFIG_CPU_LOONGSON1C)
+	/* 使用nand boot 跳转有问题？ nand启动时会事先读取1K执行代码到内存(1K代码太少？) */
+#else
 	/* U-boot entry point */
 	b	reset
 	 nop
@@ -88,6 +91,7 @@ _start:
 	/* EJTAG debug exception */
 1:	b	1b
 	 nop
+#endif
 
 	.align 4
 reset:
@@ -119,6 +123,36 @@ reset:
 	lw	gp, 0(ra)
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
+
+	/* initialize spi */
+	li  t0, 0xbfe80000
+	li  t1, 0x17	// div 4, fast_read + burst_en + memory_en double I/O 模式 部分SPI flash可能不支持
+	sb  t1, 0x4(t0)	// sfc_param
+	li  t1, 0x05
+	sb  t1, 0x6(t0)
+	nop
+
+	/* 设置sdram cs1复用关系，开发板使用ejtag_sel gpio_0引脚(第五复用)作为第二片sdram的片选
+	  注意sw2拨码开关的设置，使用ejtag烧录pmon时需要调整拨码开关，烧录完再调整回来 */
+#ifdef SDRAM_USE_CS1
+	li		a0, 0xbfd011c0
+	lw		a1, 0x40(a0)
+	ori	a1, 0x01
+	sw		a1, 0x40(a0)
+#endif
+
+#if defined(CONFIG_NAND_BOOT_EN) && defined(CONFIG_CPU_LOONGSON1C)
+#include "../../../../board/ls1x/nand_boot.S"
+	la	t0, _start
+	la	t1, real_bin
+	sub	t1, t0	/* t1 = start - real_bin */
+	li	t0, CONFIG_SYS_MONITOR_BASE
+	add	t1, t0	/* t1 = (start - real_bin) + DATA_BUFF */
+	jr	t1
+	nop
+real_bin:
+#endif
+
 	/* Initialize any external memory */
 	la	t9, lowlevel_init
 	jalr	t9

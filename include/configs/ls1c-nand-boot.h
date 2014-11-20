@@ -25,7 +25,7 @@
 #define SDRAM_DIV_3		0x2
 #define SDRAM_DIV_4		0x1
 
-#define PLL_MULT		0x5a		/* CPU LCD CAM及外设倍频 */
+#define PLL_MULT		0x60		/* CPU LCD CAM及外设倍频 */
 #define CPU_DIV			2			/* LS1C的CPU分频 */
 #define SDRAM_DIV		SDRAM_DIV_2	/* LS1C的SDRAM分频 */
 #define PLL_FREQ		(0x80000008 | (PLL_MULT << 8) | (0x3 << 2) | SDRAM_DIV)
@@ -111,7 +111,7 @@
 #define CONFIG_SYS_NO_FLASH	1
 
 /* Env Storage Settings */
-#if 1
+#if 0
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
@@ -121,7 +121,8 @@
 #else
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET	0x80000	/* 512KB偏移 */
-#define CONFIG_ENV_SIZE		0x20000	/* 8KB */
+#define CONFIG_ENV_SIZE		0x2000	/* 8KB */
+#define CONFIG_ENV_SECT_SIZE	2048	/* 2KB */
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -171,7 +172,7 @@
 /* NAND Flash boot */
 /* 如果使用nand flash启动，需要使能CONFIG_NAND_BOOT_EN选项
   并根据nand flash颗粒设置以下两个选项 */
-//#define CONFIG_NAND_BOOT_EN	/* 表示使用nandflash启动 */
+#define CONFIG_NAND_BOOT_EN	/* 表示使用nandflash启动 */
 #define NAND_PAGE_SIZE 2048	/* nand页大小 */
 #define NAND_PARAMETER 0x000	/* 外部颗粒容量大小 NAND_PARAMETER（寄存器地址：0x1fe7_8018）
 											注意：根据nand flash大小修改,低8bit保留 */
