@@ -13,7 +13,11 @@
  * specified another cache line size.
  */
 #ifdef CONFIG_SYS_CACHELINE_SIZE
+  #ifdef CONFIG_CPU_LOONGSON1
+#define ARCH_DMA_MINALIGN	4096
+  #else
 #define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
+  #endif
 #else
 #define ARCH_DMA_MINALIGN	128
 #endif

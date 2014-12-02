@@ -128,37 +128,13 @@ LEAF(mips_init_dcache)
 LEAF(mips_cache_reset)
 	.set noreorder
 	move t1, ra
-####part 2####
-cache_detect_4way:
-	.set mips32
-	mfc0    t4, CP0_CONFIG, 1
-	lui     v0, 0x7
-	and     v0, t4, v0
-	srl     t3, v0, 16    #ic
 
-	li      t5, 0x800 #32*64
-	srl     v1, t4, 22
-	andi    v1, 7
-	sll     t5, v1   #InstCacheSetSize
-	sll     t5, t3   #t6 InstCacheSize
+	li	a1, CONFIG_SYS_ICACHE_SIZE
+	li	a2, CONFIG_SYS_DCACHE_SIZE
 
-
-	andi    v0, t4, 0x0380
-	srl     t7, v0, 7     #dc
-
-	li      t6, 0x800 #32*64
-	srl     v1, t4, 13
-	andi    v1, 7
-	sll     t6, v1  #DataCacheSetSize
-	sll     t6, t7  #t5 DataCacheSize
-####part 3####
-	lui     a0, 0x8000
-	addu    a1, $0, t5
-	addu    a2, $0, t6
-cache_init_d2way:
 	mtc0    $0, CP0_TAGHI
-	addu    v0, $0, a0
-	addu    v1, a0, a2
+	li      v0, 0
+	move    v1, a2
 1:	slt     a3, v0, v1
 	beq     a3, $0, 1f
 	nop
@@ -167,26 +143,24 @@ cache_init_d2way:
 	beq     $0, $0, 1b
 	addiu   v0, v0, 0x20
 1:
-cache_flush_i2way:
-	addu    v0, $0, a0
-	addu    v1, a0, a1
+	li      v0, 0
+	move    v1, a1
 1:	slt     a3, v0, v1
 	beq     a3, $0, 1f
 	nop
 	cache   INDEX_INVALIDATE_I, 0x0(v0)     # 1 way
 	beq     $0, $0, 1b
 	addiu   v0, v0, 0x20
+
 1:
-cache_flush_d2way:
-	addu    v0, $0, a0
-	addu    v1, a0, a2
+	li v0, 0
+	move v1, a2
 1:	slt     a3, v0, v1
 	beq     a3, $0, 1f
 	nop
 	cache   INDEX_WRITEBACK_INV_D, 0x0(v0)  #1 way
 	beq     $0, $0, 1b
 	addiu   v0, v0, 0x20
-	.set    mips0
 
 1:
 cache_init_finish:

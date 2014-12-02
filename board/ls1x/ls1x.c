@@ -164,7 +164,8 @@ int board_early_init_f(void)
 }
 
 #if defined(CONFIG_USB_OHCI_LS1X) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
-static usb_inited = 0;
+#include <usb.h>
+static int usb_inited = 0;
 
 int usb_board_init(void)
 {
@@ -202,6 +203,9 @@ int usb_board_init_fail(void)
 #endif
 
 #if defined(CONFIG_CMD_MMC) && defined(CONFIG_LS1X_MMC)
+extern int ls1x_mmc_register(int card_index, int cd_gpio,
+		int wp_gpio);
+
 int board_mmc_init(bd_t *bis)
 {
 	ls1x_mmc_register(0, CONFIG_LS1X_MMC_CD, CONFIG_LS1X_MMC_WP);

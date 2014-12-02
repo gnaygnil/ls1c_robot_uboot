@@ -18,19 +18,19 @@
 #define LS1CSOC 1
 
 
-#define OSC_CLK			24000000 /* Hz */
-#define APB_CLK 		OSC_CLK
+#define OSC_CLK		24000000 /* Hz */
+#define APB_CLK		OSC_CLK
 
 #define SDRAM_DIV_2		0x0
 #define SDRAM_DIV_3		0x2
 #define SDRAM_DIV_4		0x1
 
 #define PLL_MULT		0x5a		/* CPU LCD CAM及外设倍频 */
-#define CPU_DIV			2			/* LS1C的CPU分频 */
+#define CPU_DIV		2			/* LS1C的CPU分频 */
 #define SDRAM_DIV		SDRAM_DIV_2	/* LS1C的SDRAM分频 */
 #define PLL_FREQ		(0x80000008 | (PLL_MULT << 8) | (0x3 << 2) | SDRAM_DIV)
-#define PLL_DIV			(0x00008003 | (CPU_DIV << 8))
-#define PLL_CLK			((((PLL_FREQ >> 8) & 0xff) + ((PLL_FREQ >> 16) & 0xff)) * APB_CLK / 4)
+#define PLL_DIV		(0x00008003 | (CPU_DIV << 8))
+#define PLL_CLK		((((PLL_FREQ >> 8) & 0xff) + ((PLL_FREQ >> 16) & 0xff)) * APB_CLK / 4)
 
 #ifndef CPU_CLOCK_RATE
 #define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */
@@ -41,8 +41,8 @@
 
 
 /* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE		16*1024
-#define CONFIG_SYS_ICACHE_SIZE		16*1024
+#define CONFIG_SYS_DCACHE_SIZE		(16*1024)
+#define CONFIG_SYS_ICACHE_SIZE		(16*1024)
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Miscellaneous configurable options */
@@ -52,7 +52,7 @@
 #define CONFIG_SYS_CBSIZE 256 /* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buffer Size */
 
-#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
@@ -178,19 +178,19 @@
 
 
 /* OHCI USB */
-#define	CONFIG_CMD_USB
-#ifdef	CONFIG_CMD_USB
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
 #define CONFIG_USB_OHCI
-#define	CONFIG_USB_OHCI_LS1X
+#define CONFIG_USB_OHCI_LS1X
 //#define CONFIG_SYS_OHCI_SWAP_REG_ACCESS
 //#define CONFIG_SYS_OHCI_USE_NPS		/* force NoPowerSwitching mode */
 //#define CONFIG_SYS_USB_OHCI_CPU_INIT
-#define	CONFIG_SYS_USB_OHCI_BOARD_INIT
+#define CONFIG_SYS_USB_OHCI_BOARD_INIT
 #define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	500
-#define	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
-#define	CONFIG_SYS_USB_OHCI_REGS_BASE		0xbfe28000
-#define	CONFIG_SYS_USB_OHCI_SLOT_NAME		"ls1x-ohci"
-#define	CONFIG_USB_STORAGE
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		0xbfe28000
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ls1x-ohci"
+#define CONFIG_USB_STORAGE
 #endif
 
 /* File System Support */

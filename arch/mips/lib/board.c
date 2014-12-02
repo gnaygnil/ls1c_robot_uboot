@@ -16,6 +16,7 @@
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <spi.h>
+#include <mmc.h>
 
 #if defined(CONFIG_HARD_I2C) || \
 	defined(CONFIG_SYS_I2C)

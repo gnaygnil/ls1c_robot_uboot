@@ -17,11 +17,11 @@
 #define CONFIG_CPU_NAME	"loongson 1b"
 #define LS1BSOC 1
 
-#define OSC_CLK			33000000 /* Hz */
-#define APB_CLK 		OSC_CLK
+#define OSC_CLK		33000000 /* Hz */
+#define APB_CLK		OSC_CLK
 #define PLL_FREQ		0x1c
-#define PLL_DIV			0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
-#define PLL_CLK			((12+(PLL_FREQ&0x3f))*APB_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*APB_CLK/2/1024)
+#define PLL_DIV		0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
+#define PLL_CLK		((12+(PLL_FREQ&0x3f))*APB_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*APB_CLK/2/1024)
 
 #ifndef CPU_CLOCK_RATE
 #define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */
@@ -31,8 +31,8 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE		8*1024
-#define CONFIG_SYS_ICACHE_SIZE		8*1024
+#define CONFIG_SYS_DCACHE_SIZE		(8*1024)
+#define CONFIG_SYS_ICACHE_SIZE		(8*1024)
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Miscellaneous configurable options */
@@ -42,10 +42,10 @@
 #define CONFIG_SYS_CBSIZE 256 /* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buffer Size */
 
-#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-#define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
+#define CONFIG_SYS_BOOTPARAMS_LEN	(16 * 1024 * 1024)
 
 /* memory */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000	/* Cached addr */
@@ -55,6 +55,8 @@
 #define CONFIG_SYS_MEMTEST_END		0x80800000
 #define CONFIG_DDR16BIT 1
 #define CONFIG_MEM_SIZE 0x04000000
+
+#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 
 /* misc settings */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f() */
@@ -159,19 +161,19 @@
 #define CONFIG_CMD_MTDPARTS
 
 /* OHCI USB */
-#define	CONFIG_CMD_USB
-#ifdef	CONFIG_CMD_USB
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
 #define CONFIG_USB_OHCI
-#define	CONFIG_USB_OHCI_LS1X
+#define CONFIG_USB_OHCI_LS1X
 //#define CONFIG_SYS_OHCI_SWAP_REG_ACCESS
 //#define CONFIG_SYS_OHCI_USE_NPS		/* force NoPowerSwitching mode */
 //#define CONFIG_SYS_USB_OHCI_CPU_INIT
-#define	CONFIG_SYS_USB_OHCI_BOARD_INIT
+#define CONFIG_SYS_USB_OHCI_BOARD_INIT
 #define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	500
-#define	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
-#define	CONFIG_SYS_USB_OHCI_REGS_BASE		0xbfe08000
-#define	CONFIG_SYS_USB_OHCI_SLOT_NAME		"ls1x-ohci"
-#define	CONFIG_USB_STORAGE
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		0xbfe08000
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ls1x-ohci"
+#define CONFIG_USB_STORAGE
 #endif
 
 /* File System Support */

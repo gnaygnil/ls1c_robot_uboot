@@ -1887,7 +1887,7 @@ int usb_lowlevel_init(int index, void **controller)
 		}
 	}
 	memset(pohci, 0, sizeof(ohci_t));
-	flush_cache(pohci, sizeof(ohci_t));
+	flush_cache((unsigned long)pohci, sizeof(ohci_t));
 	pohci = (ohci_t *)UNCACHED((unsigned long)pohci);
 #endif
 

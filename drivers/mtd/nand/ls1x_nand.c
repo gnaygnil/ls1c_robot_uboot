@@ -22,7 +22,7 @@
 #define DMA_ACCESS_ADDR	0x1fe78040	/* DMA对NAND操作的地址 */
 #define ORDER_ADDR_IN	0xbfd01160	/* DMA配置寄存器 */
 static void __iomem *order_addr_in;
-#define DMA_DESC_NUM	4096	/* DMA描述符占用的字节数 7x4 */
+#define DMA_DESC_NUM	64	/* DMA描述符占用的字节数 7x4 */
 /* DMA描述符 */
 #define DMA_ORDERED		0x00
 #define DMA_SADDR		0x04
@@ -219,20 +219,21 @@ static int ls1x_nand_verify_buf(struct mtd_info *mtd, const uint8_t *buf, int le
 
 	while (len--) {
 		if (buf[i++] != ls1x_nand_read_byte(mtd)) {
+			printf("verify error..., i= %d !\n\n", i-1);
 			return -1;
 		}
 	}
 	return 0;
 }
 
-static int inline ls1x_nand_done(struct ls1x_nand_info *info)
+static int ls1x_nand_done(struct ls1x_nand_info *info)
 {
 	int ret, timeout = 40000;
 
 	do {
 		ret = nand_readl(info, NAND_CMD);
 		timeout--;
-//		printk("NAND_CMD=0x%2X\n", nand_readl(info, NAND_CMD));
+//		printf("NAND_CMD=0x%2X\n", nand_readl(info, NAND_CMD));
 	} while (((ret & 0x400) != 0x400) && timeout);
 
 	return timeout;
@@ -302,7 +303,7 @@ static void start_dma_nand(unsigned int flags, struct ls1x_nand_info *info)
 	}
 
 	if (!timeout) {
-		printk("%s. %x\n",__func__, ret);
+		printf("%s. %x\n",__func__, ret);
 	}
 }
 
@@ -313,7 +314,7 @@ static void ls1x_nand_cmdfunc(struct mtd_info *mtd, unsigned command, int column
 	switch (command) {
 	case NAND_CMD_READOOB:
 		info->buf_count = mtd->oobsize;
-		info->buf_start = 0;
+		info->buf_start = column;
 		nand_writel(info, NAND_CMD, SPARE | READ);
 		nand_writel(info, NAND_ADDR_L, MAIN_SPARE_ADDRL(page_addr) + mtd->writesize);
 		nand_writel(info, NAND_ADDR_H, MAIN_SPARE_ADDRH(page_addr));
@@ -323,7 +324,7 @@ static void ls1x_nand_cmdfunc(struct mtd_info *mtd, unsigned command, int column
 		break;
 	case NAND_CMD_READ0:
 		info->buf_count = mtd->writesize + mtd->oobsize;
-		info->buf_start = 0;
+		info->buf_start = column;
 		nand_writel(info, NAND_CMD, SPARE | MAIN | READ);
 		nand_writel(info, NAND_ADDR_L, MAIN_SPARE_ADDRL(page_addr));
 		nand_writel(info, NAND_ADDR_H, MAIN_SPARE_ADDRH(page_addr));

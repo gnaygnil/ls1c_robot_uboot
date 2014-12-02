@@ -39,6 +39,9 @@ static void __iomem *order_addr_in;
 /* 设置sdio控制器使用的dma通道，参考数据手册 */
 #define DMA_NUM SDIO_USE_DMA3
 
+/* fat扇区大小512，所以512x32=16KB 需预留16KB给sdio控制器的dma */
+#define MAX_BUFF_SIZE	32768	/* 32KByte */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 struct ls1x_sdio_regs {
@@ -81,6 +84,10 @@ struct ls1x_mmc_priv {
 	void __iomem	*dma_desc;
 	dma_addr_t		dma_desc_phys;
 	size_t			dma_desc_size;
+
+	unsigned char	*data_buff;
+	dma_addr_t		data_buff_phys;
+	size_t			data_buff_size;
 };
 
 static struct ls1x_sdio_regs *regs = (void *)LS1X_SDIO_BASE;
@@ -286,6 +293,7 @@ static int ls1x_send_command(struct ls1x_mmc_priv *priv, struct mmc_cmd *cmd,
 
 	/* run the command right now */
 	writel(reg | SDICMDCON_CMDSTART, &regs->SDICMDCON);
+	udelay(5);
 	/* wait until command is done */
 #if 0
 	/* 分频系数调低后（即sdio时钟比较高），使用下列判断命令是否发送成功，但判断总是失败 */
@@ -412,24 +420,28 @@ static int ls1x_mci_data_check(struct ls1x_mmc_priv *priv)
 static int ls1x_mci_block_transfer(struct ls1x_mmc_priv *priv, struct mmc_cmd *cmd,
 				struct mmc_data *data)
 {
-	dma_addr_t p;
+	unsigned int trans_len = data->blocksize * data->blocks;
 	int timeout = 5000;
 	int ret;
 
+	if (trans_len > MAX_BUFF_SIZE) {
+		printf("error: ls1x sdio dma buff too small!\n");
+		return -1;
+	}
+
 	if (data->flags & MMC_DATA_READ) {
-		p = virt_to_phys(data->dest);
 		writel(0x00000001, priv->dma_desc + DMA_CMD);
 	} else {
-		p = virt_to_phys((unsigned char *)data->src);
+		memcpy(priv->data_buff, data->src, trans_len);
 		writel(0x00003001, priv->dma_desc + DMA_CMD);
 	}
 
-//	writel(0, priv->dma_desc + DMA_ORDERED);
-	writel(p, priv->dma_desc + DMA_SADDR);
-//	writel(DMA_ACCESS_ADDR, priv->dma_desc + DMA_DADDR);
-	writel((data->blocksize * data->blocks + 3) >> 2, priv->dma_desc + DMA_LENGTH);
-//	writel(0, priv->dma_desc + DMA_STEP_LENGTH);
-//	writel(1, priv->dma_desc + DMA_STEP_TIMES);
+	writel(0, priv->dma_desc + DMA_ORDERED);
+	writel(priv->data_buff_phys, priv->dma_desc + DMA_SADDR);
+	writel(DMA_ACCESS_ADDR, priv->dma_desc + DMA_DADDR);
+	writel((trans_len + 3) >> 2, priv->dma_desc + DMA_LENGTH);
+	writel(0, priv->dma_desc + DMA_STEP_LENGTH);
+	writel(1, priv->dma_desc + DMA_STEP_TIMES);
 
 	writel((priv->dma_desc_phys & ~0x1F) | 0x8 | DMA_NUM, order_addr_in);	/* 启动DMA */
 	while ((readl(order_addr_in) & 0x8)/* && (timeout-- > 0)*/) {
@@ -465,6 +477,10 @@ static int ls1x_mci_block_transfer(struct ls1x_mmc_priv *priv, struct mmc_cmd *c
 	if (!timeout) {
 		printf("%s. %x\n",__func__, ret);
 		return -EIO;
+	}
+
+	if (data->flags & MMC_DATA_READ) {
+		memcpy(data->dest, priv->data_buff, trans_len);
 	}
 
 	return 0;
@@ -573,8 +589,18 @@ static int ls1x_mmc_dma_init(struct ls1x_mmc_priv *priv)
 	priv->dma_desc_phys = virt_to_phys(priv->dma_desc);
 	order_addr_in = (unsigned int *)ORDER_ADDR_IN;
 
+//	priv->data_buff_size = MAX_BUFF_SIZE;
+	priv->data_buff_size = ALIGN(MAX_BUFF_SIZE, PAGE_SIZE);	/* 申请内存大小，页对齐 */
+	priv->data_buff = (unsigned char *)(((unsigned int)malloc(priv->data_buff_size) & 0x0fffffff) | 0xa0000000);
+	priv->data_buff = (unsigned char *)ALIGN((unsigned int)priv->data_buff, 32);	/* 地址32字节对齐 */
+	if (!priv->data_buff) {
+		dev_err(&pdev->dev, "failed to allocate dma buffer\n");
+		return -ENOMEM;
+	}
+	priv->data_buff_phys = virt_to_phys(priv->data_buff);
+
 	writel(0, priv->dma_desc + DMA_ORDERED);
-//	writel(p, priv->dma_desc + DMA_SADDR);
+	writel(priv->data_buff_phys, priv->dma_desc + DMA_SADDR);
 	writel(DMA_ACCESS_ADDR, priv->dma_desc + DMA_DADDR);
 //	writel((data->blocksize * data->blocks + 3) / 4, priv->dma_desc + DMA_LENGTH);
 	writel(0, priv->dma_desc + DMA_STEP_LENGTH);
@@ -673,8 +699,9 @@ int ls1x_mmc_register(int card_index, int cd_gpio,
 
 	/* 设置sdio控制器一次传输的最大块数，ls1x sdio的最大块数为
 	     4095，驱动中使用dma传输，一次dam传输有大小限制，太大会出现传输失败，
-	     这里把b_max设置为2048 */
-	mmc->b_max = 2048;
+	     这里把b_max设置为32  */
+	/* fat扇区大小512，所以512x32=16KB 需预留16KB给sdio控制器的dma */
+	mmc->b_max = 32;
 
 	priv->clock = ls1x_setup_clock_speed(priv, mmc->f_min);
 

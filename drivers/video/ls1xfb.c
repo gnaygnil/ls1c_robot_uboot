@@ -49,7 +49,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEFAULT_XRES	800
 #define DEFAULT_YRES	600
 #define DEFAULT_BPP	16
-static u32 default_refresh = DEFAULT_REFRESH;
+//static u32 default_refresh = DEFAULT_REFRESH;
 static u32 default_xres = DEFAULT_XRES;
 static u32 default_yres = DEFAULT_YRES;
 static u32 default_bpp = DEFAULT_BPP;
@@ -812,7 +812,7 @@ void *video_hw_init(void)
 	int ret;
 
 	ret = ls1xfb_probe(gpixfmt, gdisp, gmode);
-	debug("Framebuffer at 0x%x\n", (unsigned int)panel.frameAdrs);
+	debug("Framebuffer at 0x%x %d\n", (unsigned int)panel.frameAdrs, ret);
 
 	return (void *)&panel;
 }
