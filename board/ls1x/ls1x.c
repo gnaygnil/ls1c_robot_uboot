@@ -66,39 +66,9 @@ int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
 
-#if defined(CONFIG_CPU_LOONGSON1A)
-	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
-	#ifdef CONFIG_GMAC0_100M
-	*((volatile unsigned int*)0xbfd00420) |= 0x500;		/* 配置成百兆模式 */
-	#else
-	*((volatile unsigned int*)0xbfd00420) &= ~0x500;		/* 否则配置成千兆模式 */
-	#endif
-	if (synopGMACMappedAddr == 0xbfe20000) {
-		*((volatile unsigned int*)0xbfd00420) &= ~0x01000000;	/* 使能GMAC1 */
-		#ifdef CONFIG_GMAC1_100M
-		*((volatile unsigned int*)0xbfd00420) |= 0xa00;		/* 配置成百兆模式 */
-		#else
-		*((volatile unsigned int*)0xbfd00420) &= ~0xa00;		/* 否则配置成千兆模式 */
-		#endif
-		#ifdef GMAC1_USE_UART01
-		*((volatile unsigned int*)0xbfd00420) |= 0xc0;
-		#else
-		*((volatile unsigned int*)0xbfd00420) &= ~0xc0;
-		#endif
-	}
-#elif defined(CONFIG_CPU_LOONGSON1B)
-	/* 寄存器0xbfd00424有GMAC的使能开关 */
-	*((volatile unsigned int*)0xbfd00424) &= ~0x1000;	/* 使能GMAC0 */
-	#ifdef CONFIG_GMAC0_100M
-	*((volatile unsigned int*)0xbfd00424) |= 0x5;		/* 配置成百兆模式 */
-	#else
-	*((volatile unsigned int*)0xbfd00424) &= ~0x5;	/* 否则配置成千兆模式 */
-	#endif
-#elif defined(CONFIG_CPU_LOONGSON1C)
-	*((volatile unsigned int *)0xbfd00424) &= ~(7 << 28);
-#ifdef RMII
-    *((volatile unsigned int *)0xbfd00424) |= (1 << 30); //wl rmii
-#endif
+#ifdef CONFIG_LS1X_GMAC
+	char *name = "syn0";
+	ret = synopGMAC_init_network_interface(name, LS1X_GMAC0_BASE);
 #endif
 
 #if defined(CONFIG_DESIGNWARE_ETH)

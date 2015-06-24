@@ -129,6 +129,9 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"serverip=192.168.1.3\0" \
+	"ipaddr=192.168.1.2\0" \
+	"ethaddr=10:84:7F:B5:9D:Fc\0" \
 
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
@@ -184,13 +187,14 @@
 
 /* Ethernet driver configuration */
 #define CONFIG_MII
-#define CONFIG_DESIGNWARE_ETH
+#define CONFIG_LS1X_GMAC
+//#define CONFIG_DESIGNWARE_ETH
 //#define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_DW_SEARCH_PHY
 #define CONFIG_DW0_PHY				1
+#define CONFIG_DW_AUTONEG
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_DW_AUTONEG
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 #define CONFIG_GMAC0_100M
 
