@@ -321,7 +321,8 @@ void synop_handle_transmit_over(struct synopGMACNetworkAdapter *tp)
 			}
 		#endif
 		
-			plat_free_memory((void *)(data1));	//sw:	data1 = buffer1
+//			plat_free_memory((void *)(data1));	//sw:	data1 = buffer1
+			plat_free_memory((void *)((data1 & 0x0fffffff) | 0x80000000));
 			
 			if(synopGMAC_is_desc_valid(status)){
 				tp->synopGMACNetStats.tx_bytes += length1;
@@ -354,36 +355,36 @@ void synop_handle_transmit_over(struct synopGMACNetworkAdapter *tp)
  * \note This function runs in interrupt context.
  */
 
-void synop_handle_received_data(struct synopGMACNetworkAdapter* tp)
+int synop_handle_received_data(struct synopGMACNetworkAdapter* tp)
 {
 	synopGMACdevice *gmacdev;
 	s32 desc_index;
 	u32 data1;
 	u32 data2;
-	u32 len;
+	u32 len = 0;
 	u32 status;
 	u32 dma_addr1;
 	u32 dma_addr2;
-	unsigned char *skb;
+//	unsigned char *skb;
 
 	gmacdev = tp->synopGMACdev;
 
 	/*Handle the Receive Descriptors*/
-	do {
-//		flush_cache((unsigned long)gmacdev, sizeof(synopGMACdevice));
+//	do {
+		flush_cache((unsigned long)gmacdev, sizeof(synopGMACdevice));
 		desc_index = synopGMAC_get_rx_qptr(gmacdev, &status, &dma_addr1, NULL, &data1, &dma_addr2, NULL, &data2);
-
+//		flush_cache((unsigned int)data1, RX_BUF_SIZE);
 		if (desc_index >= 0 && data1 != 0) {
 			if (synopGMAC_is_rx_desc_valid(status)) {
-				skb = (unsigned char *)plat_alloc_memory(RX_BUF_SIZE);
+//				skb = (unsigned char *)plat_alloc_memory(RX_BUF_SIZE);
 
 				dma_addr1 = plat_dma_map_single(data1, RX_BUF_SIZE);
 //				len = synopGMAC_get_rx_desc_frame_length(status) - 4; //Not interested in Ethernet CRC bytes
 				len = synopGMAC_get_rx_desc_frame_length(status);
-				memcpy((void *)skb, (void *)data1, len);
+//				memcpy((void *)skb, (void *)data1, len);
 
-				NetReceive(skb, len);
-//				NetReceive((unsigned char *)data1, len);
+//				NetReceive(skb, len);
+				NetReceive((unsigned char *)data1, len);
 				tp->synopGMACNetStats.rx_packets++;
 				tp->synopGMACNetStats.rx_bytes += len;
 //				plat_free_memory((void *)skb);
@@ -396,14 +397,15 @@ void synop_handle_received_data(struct synopGMACNetworkAdapter* tp)
 				tp->synopGMACNetStats.rx_frame_errors  += synopGMAC_is_frame_dribbling_errors(status);
 				tp->synopGMACNetStats.rx_length_errors += synopGMAC_is_rx_frame_length_errors(status);
 			}
-
+//			flush_cache((unsigned int)data1, RX_BUF_SIZE);
 			desc_index = synopGMAC_set_rx_qptr(gmacdev,dma_addr1, RX_BUF_SIZE, (u32)data1,0,0,0);
 
 			if (desc_index < 0) {
 				plat_free_memory((void *)data1);
 			}
 		}
-	} while(desc_index >= 0);
+//	} while(desc_index >= 0);
+	return len;
 }
 
 
@@ -439,8 +441,8 @@ int synopGMAC_intr_handler(struct synopGMACNetworkAdapter * tp)
 		if ((dma_status_reg & DmaIntRxCompleted) ||
 			 (dma_status_reg & (DmaIntTxCompleted))) {
 				if(dma_status_reg & DmaIntRxCompleted){
-					synop_handle_received_data(tp);
-					rx_tx_ok = 1;
+//					synop_handle_received_data(tp);
+//					rx_tx_ok = 1;
 				}
 				if(dma_status_reg & DmaIntTxCompleted){
 					synop_handle_transmit_over(tp);	//Do whatever you want after the transmission is over
@@ -509,6 +511,7 @@ int synopGMAC_intr_handler(struct synopGMACNetworkAdapter * tp)
 				*/
 				do {
 					u32 skb = (u32)plat_alloc_memory(RX_BUF_SIZE);		//should skb aligned here?
+					skb = (u32)(((unsigned int)skb & 0x0fffffff) | 0xa0000000);
 					if (skb == 0) {
 						printf("ERROR in skb buffer allocation\n");
 						break;
@@ -664,6 +667,7 @@ static s32 synopGMAC_linux_open(struct eth_device *dev)
 
 	do {
 		skb = (u32)plat_alloc_memory(RX_BUF_SIZE);		//should skb aligned here?
+		skb = (u32)(((unsigned int)skb & 0x0fffffff) | 0xa0000000);
 		if (skb == 0) {
 			printf("ERROR in skb buffer allocation\n");
 			break;
@@ -720,22 +724,18 @@ s32 synopGMAC_linux_xmit_frames(struct eth_device *dev, void *packet, int length
 	u32 offload_needed = 0;
 	u32 skb;
 	int len;
-
 	struct synopGMACNetworkAdapter *adapter;
-	synopGMACdevice * gmacdev;
+	synopGMACdevice *gmacdev;
 
-	adapter = (struct synopGMACNetworkAdapter *) dev->priv;
-	if(adapter == NULL)
-		return -1;
+	adapter = (struct synopGMACNetworkAdapter *)dev->priv;
 
-	gmacdev = (synopGMACdevice *) adapter->synopGMACdev;
-	if(gmacdev == NULL)
-		return -1;
+	gmacdev = (synopGMACdevice *)adapter->synopGMACdev;
 
-//	while(ifp->if_snd.ifq_head != NULL){
-		if(!synopGMAC_is_desc_owned_by_dma(gmacdev->TxNextDesc)) {
+//	while (ifp->if_snd.ifq_head != NULL) {
+		if (!synopGMAC_is_desc_owned_by_dma(gmacdev->TxNextDesc)) {
 
 			skb = (u32)plat_alloc_memory(TX_BUF_SIZE);
+			skb = (u32)(((unsigned int)skb & 0x0fffffff) | 0xa0000000);
 			if(skb == 0)
 				return -1;
 
@@ -795,13 +795,14 @@ static int gmac_recv(struct eth_device *dev)
 {
 	struct synopGMACNetworkAdapter *adapter = gmac_adapter;
 
-	while (1) {
+/*	while (1) {
 		synopGMAC_intr_handler(adapter);
 		if (rx_tx_ok) {
 			break;
 		}
 	}
-	return 0;
+	return 0;*/
+	return synop_handle_received_data(adapter);
 }
 
 static int gmac_send(struct eth_device *dev, void *packet, int length)
@@ -859,7 +860,7 @@ s32  synopGMAC_init_network_interface(char *xname, unsigned int synopGMACMappedA
 	int i, ret;
 	struct synopGMACNetworkAdapter *synopGMACadapter;
 
-	if(!inited) {
+	if (!inited) {
 		u8 v;
 		char *s = getenv("ethaddr");
 		if (s) {
