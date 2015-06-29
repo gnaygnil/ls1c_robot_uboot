@@ -67,8 +67,7 @@ int board_eth_init(bd_t *bis)
 	int ret = 0;
 
 #ifdef CONFIG_LS1X_GMAC
-	char *name = "syn0";
-	ret = synopGMAC_init_network_interface(name, LS1X_GMAC0_BASE);
+	ret = synopGMAC_init_network_interface(0, LS1X_GMAC0_BASE, CONFIG_LS1X_GMAC0_PHY);
 #endif
 
 #if defined(CONFIG_DESIGNWARE_ETH)

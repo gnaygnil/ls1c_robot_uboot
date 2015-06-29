@@ -600,12 +600,12 @@ static s32 synopGMAC_linux_open(struct eth_device *dev)
 
 	/*Attach the device to MAC struct This will configure all the required base addresses
 	  such as Mac base, configuration base, phy base address(out of 32 possible phys )*/
-	synopGMAC_set_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, dev->enetaddr);
+//	synopGMAC_set_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, dev->enetaddr);
 
 	/*Lets read the version of ip in to device structure*/
 	synopGMAC_read_version(gmacdev);
 
-	synopGMAC_get_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, dev->enetaddr);
+//	synopGMAC_get_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, dev->enetaddr);
 	
 	/*Check for Phy initialization*/
 	synopGMAC_set_mdc_clk_div(gmacdev, GmiiCsrClk2);	//thf
@@ -780,29 +780,13 @@ static int gmac_send(struct eth_device *dev, void *packet, int length)
 	return 0;
 }
 
-static int gethex(u8 *vp, char *p, int n)
+static int dw_write_hwaddr(struct eth_device *dev)
 {
-	u8 v;
-	int digit;
+	synopGMACdevice *gmacdev = synopGMACdev;
 
-	for (v = 0; n > 0; n--) {
-		if (*p == 0)
-			return (0);
-		if (*p >= '0' && *p <= '9')
-			digit = *p - '0';
-		else if (*p >= 'a' && *p <= 'f')
-			digit = *p - 'a' + 10;
-		else if (*p >= 'A' && *p <= 'F')
-			digit = *p - 'A' + 10;
-		else
-			return (0);
+	synopGMAC_set_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, dev->enetaddr);
 
-		v <<= 4;
-		v |= digit;
-		p++;
-	}
-	*vp = v;
-	return (1);
+	return 0;
 }
 
 /**
@@ -813,31 +797,10 @@ static int gethex(u8 *vp, char *p, int n)
  *
  * \return Returns 0 on success and Error code on failure.
  */
-s32  synopGMAC_init_network_interface(char *xname, unsigned int synopGMACMappedAddr)
+int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 {
-	static u8 mac_addr0[6] = DEFAULT_MAC_ADDRESS;
-	static int inited = 0;
-	int i, ret;
+	int ret;
 
-	if (!inited) {
-		u8 v;
-		char *s = getenv("ethaddr");
-		if (s) {
-			int allz, allf;
-			u8 macaddr[6];
-
-			for (i=0, allz=1, allf=1; i<6; i++) {
-				gethex(&v, s, 2);
-				macaddr[i] = (u8)v;
-				s += 3;         /* Don't get to fancy here :-) */
-				if(v != 0) allz = 0;
-				if(v != 0xff) allf = 0;
-			}
-			if (!allz && !allf)
-				memcpy(mac_addr0, macaddr, 6);
-		}
-		inited = 1;
-	}
 #if defined(LS1ASOC)
 	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
 	#ifdef CONFIG_GMAC0_100M
@@ -845,7 +808,7 @@ s32  synopGMAC_init_network_interface(char *xname, unsigned int synopGMACMappedA
 	#else
 	*((volatile unsigned int*)0xbfd00420) &= ~0x500;		/* 否则配置成千兆模式 */
 	#endif
-	if (synopGMACMappedAddr == 0xbfe20000) {
+	if (base_addr == 0xbfe20000) {
 		*((volatile unsigned int*)0xbfd00420) &= ~0x01000000;	/* 使能GMAC1 */
 		#ifdef CONFIG_GMAC1_100M
 		*((volatile unsigned int*)0xbfd00420) |= 0xa00;		/* 配置成百兆模式 */
@@ -867,7 +830,7 @@ s32  synopGMAC_init_network_interface(char *xname, unsigned int synopGMACMappedA
 	*((volatile unsigned int*)0xbfd00424) &= ~0x5;	/* 否则配置成千兆模式 */
 	#endif
 	/* GMAC1初始化 使能GMAC1 和UART0复用，导致UART0不能使用 */
-	if (synopGMACMappedAddr == 0xbfe20000) {
+	if (base_addr == 0xbfe20000) {
 		*((volatile unsigned int*)0xbfd00420) |= 0x18;
 		*((volatile unsigned int*)0xbfd00424) &= ~0x2000;	/* 使能GMAC1 */
 		#ifdef CONFIG_GMAC1_100M
@@ -899,7 +862,7 @@ s32  synopGMAC_init_network_interface(char *xname, unsigned int synopGMACMappedA
 		return -1;
 	}
 
-	ret = synopGMAC_attach(synopGMACdev, (u32)synopGMACMappedAddr + MACBASE, (u32)synopGMACMappedAddr + DMABASE, DEFAULT_PHY_BASE, mac_addr0);
+	ret = synopGMAC_attach(synopGMACdev, (u32)base_addr + MACBASE, (u32)base_addr + DMABASE, phy_addr, NULL);
 	if (ret) {
 		return -1;
 	}
@@ -913,23 +876,18 @@ s32  synopGMAC_init_network_interface(char *xname, unsigned int synopGMACMappedA
 	}
 	memset(dev, 0, sizeof(*dev));
 
-	dev->iobase = synopGMACMappedAddr;
+	sprintf(dev->name, "mii%d", id);
+	dev->iobase = (int)base_addr;
 	dev->priv = synopGMACdev;
 
-	sprintf(dev->name, xname);
-	dev->enetaddr[0] = mac_addr0[0];
-	dev->enetaddr[1] = mac_addr0[1];
-	dev->enetaddr[2] = mac_addr0[2];
-	dev->enetaddr[3] = mac_addr0[3];
-	dev->enetaddr[4] = mac_addr0[4];
-	dev->enetaddr[5] = mac_addr0[5];
-
 	synopGMAC_linux_open(dev);
+	eth_getenv_enetaddr_by_index("eth", id, &dev->enetaddr[0]);
 
 	dev->init = gmac_init;
 	dev->halt = gmac_halt;
 	dev->send = gmac_send;
 	dev->recv = gmac_recv;
+	dev->write_hwaddr = dw_write_hwaddr;
 
 	eth_register(dev);
 	}

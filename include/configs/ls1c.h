@@ -128,6 +128,9 @@
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
 	"panel=" "at070tn93" "\0"							\
+	"serverip=192.168.1.3\0" \
+	"ipaddr=192.168.1.2\0" \
+	"ethaddr=10:84:7F:B5:9D:Fc\0" \
 
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
@@ -201,14 +204,18 @@
 
 /* Ethernet driver configuration */
 #define CONFIG_MII
-#define CONFIG_DESIGNWARE_ETH
+#define CONFIG_LS1X_GMAC
+#define CONFIG_LS1X_GMAC0_PHY	19
+#define RMII 1
+
+//#define CONFIG_DESIGNWARE_ETH
 //#define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_DW_SEARCH_PHY
 #define CONFIG_DW0_PHY				1
+#define CONFIG_DW_AUTONEG
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_DW_AUTONEG
-#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
+//#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 #define CONFIG_GMAC0_100M
 
 /* Framebuffer and LCD */
@@ -249,6 +256,7 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_NET
@@ -258,5 +266,10 @@
 /* Other helpful shell-like commands */
 #define CONFIG_MD5
 #define CONFIG_CMD_MD5SUM
+
+#define CONFIG_BOOTDELAY	2		/* Autoboot after 5 seconds	*/
+#define CONFIG_BOOTCOMMAND	"tftp a2000000 uImage\;bootm 82000000"	/* Autoboot command	*/
+#define CONFIG_BOOTARGS		"console=ttyS3,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=cramfs video=ls1xfb:800x480-16@60"
+
 
 #endif	/* __CONFIG_H */

@@ -1195,7 +1195,7 @@ s32 synopGMAC_attach(synopGMACdevice *gmacdev, unsigned int macBase, unsigned in
 	gmacdev->PhyBase = i;
 	printf("phy base = %d\n", gmacdev->PhyBase);
 	/* Program/flash in the station/IP's Mac address */
-	synopGMAC_set_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, mac_addr); 
+//	synopGMAC_set_mac_addr(gmacdev, GmacAddr0High, GmacAddr0Low, mac_addr); 
 
 	return 0;
 }

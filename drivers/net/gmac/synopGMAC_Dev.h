@@ -51,12 +51,6 @@
 
 #include "synopGMAC_plat.h"
 
-/*SynopGMAC can support up to 32 phys*/
-#ifdef GMAC_PHY_BASE
-#define DEFAULT_PHY_BASE GMAC_PHY_BASE
-#else
-#define DEFAULT_PHY_BASE 0		//We use First Phy 
-#endif
 #define MACBASE 0x0000			// The Mac Base address offset is 0x0000
 #define DMABASE 0x1000			// Dma base address starts with an offset 0x1000
 
