@@ -188,18 +188,12 @@
 
 /* Ethernet driver configuration */
 #define CONFIG_MII
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ADDR				0
 #define CONFIG_LS1X_GMAC
-#define CONFIG_LS1X_GMAC0_PHY	0
-
-//#define CONFIG_DESIGNWARE_ETH
-//#define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_DW_SEARCH_PHY
-#define CONFIG_DW0_PHY				1
-#define CONFIG_DW_AUTONEG
-#define CONFIG_NET_MULTI
-#define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
+#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	4
 #define CONFIG_GMAC0_100M
+#define CONFIG_NET_MULTI
 
 /* Framebuffer and LCD */
 //#define CONFIG_PREBOOT

@@ -65,9 +65,9 @@ void *plat_alloc_consistent_dmaable_memory(u32 size, u32 *addr)
   * In linux Kernel, it depends on pci dev structure
   * @param[in] bytes in bytes to allocate
   */
-void plat_free_consistent_dmaable_memory(u32 size, void *addr, u32 dma_addr) 
+void plat_free_consistent_dmaable_memory(u32 size, void * addr, u32 dma_addr) 
 {
-	free((void *)(PHYS_TO_CACHED(UNCACHED_TO_PHYS(addr))));
+	free(PHYS_TO_CACHED(UNCACHED_TO_PHYS(addr)));
 }
 
 /**

@@ -67,7 +67,12 @@ int board_eth_init(bd_t *bis)
 	int ret = 0;
 
 #ifdef CONFIG_LS1X_GMAC
-	ret = synopGMAC_init_network_interface(0, LS1X_GMAC0_BASE, CONFIG_LS1X_GMAC0_PHY);
+#ifdef CONFIG_CPU_LOONGSON1C
+	u32 interface = PHY_INTERFACE_MODE_RMII;
+#else
+	u32 interface = PHY_INTERFACE_MODE_MII;
+#endif
+	ret = synopGMAC_initialize(LS1X_GMAC0_BASE, interface);
 #endif
 
 #if defined(CONFIG_DESIGNWARE_ETH)
