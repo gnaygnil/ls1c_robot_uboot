@@ -37,20 +37,19 @@ lowlevel_init:
 
 	/* initialize pll */
 #if defined(CONFIG_CPU_LOONGSON1A)
-#define DDRCFG_DATA (0x8888|(CPU_MULT-4)|((DDR_MULT-3)<<8))
-    li  t1, DDRCFG_DATA
+	li  t1, COREPLL_CFG
 	li  t2, 0xa
 1:
-    li  t0, 0xbfe78030
-    sw  t1, 0x0(t0)
-    nop
-    sub  t2, 0x1
-    bnez t2, 1b
-    nop
+	li  t0, 0xbfe78030
+	sw  t1, 0x0(t0)
+	nop
+	sub  t2, 0x1
+	bnez t2, 1b
+	nop
 #elif defined(CONFIG_CPU_LOONGSON1B)
 	li	t0, 0xbfe78030
 	li	t1, PLL_FREQ
-    li	t2, PLL_DIV
+	li	t2, PLL_DIV
 	sw	t1, 0(t0)
 	sw	t2, 4(t0)
 #elif defined(CONFIG_CPU_LOONGSON1C)
@@ -276,14 +275,12 @@ LEAF(initserial)
 	li		v1, CFCR_DLAB
 	sb		v1, NSREG(NS16550_CFCR)(v0)
 #if defined(CONFIG_CPU_LOONGSON1A)
-//	li		v1, ((APB_CLK*DDR_MULT)/(2*16*CONFIG_BAUDRATE))
-//	li		a0, 0xbfe78030
-//	lw		a0, (a0)
-	move	a0, a1
-	and		a0, 0x700
-	srl		a0, 8
+	li		a0, COREPLL_CFG
+//	move	a0, a1
+	and	a0, 0x700
+	srl	a0, 8
 	addiu	a0, 3
-	li		v1, APB_CLK
+	li		v1, OSC_CLK
 	multu	a0, v1
 	mflo	v1
 	li		a0, 2*16*CONFIG_BAUDRATE
@@ -293,7 +290,7 @@ LEAF(initserial)
 	move	v1, a0
 	bnez	v1, 2f
 	nop
-	li		v1, APB_CLK
+	li		v1, OSC_CLK
 	li		a0, 0xbfe78030
 	lw		a1, 4(a0)
 	li		a2, 0xc00
@@ -307,7 +304,7 @@ LEAF(initserial)
 	srl		a1, 8
 	andi	a1, 0x3ff
 	addu	a1, a2
-	li		a2, (APB_CLK>>11)
+	li		a2, (OSC_CLK>>11)
 	multu	a1, a2
 	mflo	v1
 	lw		a1, 4(a0)
@@ -368,34 +365,34 @@ LEAF(initserial)
 	remu	t1, t2			//(1<<(sdram_div+1))%5
 	srl		a1, 8
 	andi	a1, 0xff
-	li		a2, APB_CLK
-	srl		a2, 2			//APB_CLK/4
+	li		a2, OSC_CLK
+	srl		a2, 2			//OSC_CLK/4
 	multu	a1, a2
-	mflo	v1				//APB_CLK/4 * PLL_MULT
+	mflo	v1				//OSC_CLK/4 * PLL_MULT
 	divu	v1, t1
-	mflo	v1				//APB_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5
+	mflo	v1				//OSC_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5
 
 	lw		a1, 4(a0)
 	andi	a2, a1, DIV_CPU_SEL
 	bnez	a2, 1f
 	nop
-	li		v1, APB_CLK
+	li		v1, OSC_CLK
 	b		3f
 	nop
 1:
 	andi	a2, a1, DIV_CPU_EN
 	bnez	a2, 2f
 	nop
-	srl		v1, 1			//APB_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5 / 2
+	srl		v1, 1			//OSC_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5 / 2
 	b		3f
 	nop
 2:
 	andi	a1, DIV_CPU
 	srl		a1, DIV_CPU_SHIFT
 	divu	v1, a1
-	mflo	v1				//APB_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5 / CPU_DIV
+	mflo	v1				//OSC_CLK/4 * PLL_MULT / (1<<(sdram_div+1))%5 / CPU_DIV
 3:
-//	li		v1, ((APB_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM / (16*CONFIG_BAUDRATE)
+//	li		v1, ((OSC_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM / (16*CONFIG_BAUDRATE)
 	li		a1, 16*CONFIG_BAUDRATE
 	divu	v1, v1, a1
 #endif

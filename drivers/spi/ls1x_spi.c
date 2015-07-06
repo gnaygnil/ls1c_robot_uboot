@@ -37,6 +37,9 @@ static const struct ls1x_spi_host ls1x_spi_host_list[] = {
 	{
 		.base = LS1X_SPI0_BASE,
 	},
+	{
+		.base = LS1X_SPI1_BASE,
+	},
 };
 
 struct ls1x_spi_slave {

@@ -265,8 +265,8 @@ static void set_uart_clock_divider(void)
 
 	pll = readl(LS1X_CLK_PLL_FREQ);
 	ctrl = readl(LS1X_CLK_PLL_DIV) & DIV_DDR;
-	rate = (12 + (pll & 0x3f)) * APB_CLK / 2
-			+ ((pll >> 8) & 0x3ff) * APB_CLK / 1024 / 2;
+	rate = (12 + (pll & 0x3f)) * OSC_CLK / 2
+			+ ((pll >> 8) & 0x3ff) * OSC_CLK / 1024 / 2;
 	rate = rate / (ctrl >> DIV_DDR_SHIFT);
 	divisor = rate / 2 / (16*115200);
 	
@@ -372,12 +372,12 @@ static void set_clock_divider(struct ls1xfb_info *fbi,
 	needed_pixclk = (u32)div_result;
 
 #if defined(CONFIG_CPU_LOONGSON1A)
-	#define PLL_CTRL(x)		(ioremap((x), 4))
+	#define PLL_CTRL(x)		(x)
 	/* 设置gpu时钟频率为200MHz */
-	divider_int = caclulatefreq(APB_CLK/1000, 200000);
+	divider_int = caclulatefreq(OSC_CLK/1000, 200000);
 	writel(divider_int, PLL_CTRL(LS1X_GPU_PLL_CTRL));
 	/* 像素时钟 */
-	divider_int = caclulatefreq(APB_CLK/1000, needed_pixclk/1000);
+	divider_int = caclulatefreq(OSC_CLK/1000, needed_pixclk/1000);
 	writel(divider_int, PLL_CTRL(LS1X_PIX1_PLL_CTRL));
 	writel(divider_int, PLL_CTRL(LS1X_PIX2_PLL_CTRL));
 #elif defined(CONFIG_CPU_LOONGSON1B)

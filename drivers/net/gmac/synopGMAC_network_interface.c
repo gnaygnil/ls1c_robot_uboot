@@ -317,7 +317,7 @@ static s32 synopGMAC_linux_xmit_frames(struct eth_device *dev, void *packet, int
 		}
 	}
 	else
-		printf("===%p: next txDesc belongs to DMA don't set it\n", gmacdev->TxNextDesc);
+		printf("===%x: next txDesc belongs to DMA don't set it\n", gmacdev->TxNextDesc);
 
 	/*Now force the DMA to start transmission*/
 	synopGMAC_resume_dma_tx(gmacdev);
@@ -497,6 +497,7 @@ static int gmac_init(struct eth_device *dev, bd_t * bd)
 	struct dw_eth_dev *priv = dev->priv;
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
+	u32 conf;
 
 	/* Resore the HW MAC address as it has been lost during MAC reset */
 	dw_write_hwaddr(dev);
@@ -535,7 +536,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 	struct eth_device *dev;
 	struct dw_eth_dev *priv;
 
-#if defined(LS1ASOC)
+#if defined(CONFIG_CPU_LOONGSON1A)
 	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
 	#ifdef CONFIG_GMAC0_100M
 	*((volatile unsigned int*)0xbfd00420) |= 0x500;		/* 配置成百兆模式 */
@@ -555,7 +556,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 		*((volatile unsigned int*)0xbfd00420) &= ~0xc0;
 		#endif
 	}
-#elif defined(LS1BSOC)
+#elif defined(CONFIG_CPU_LOONGSON1B)
 	/* 寄存器0xbfd00424有GMAC的使能开关 */
 	*((volatile unsigned int*)0xbfd00424) &= ~0x1000;	/* 使能GMAC0 */
 	#ifdef CONFIG_GMAC0_100M
@@ -573,7 +574,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 		*((volatile unsigned int*)0xbfd00424) &= ~0xa;	/* 否则配置成千兆模式 */
 		#endif
 	}
-#elif defined(LS1CSOC)
+#elif defined(CONFIG_CPU_LOONGSON1C)
 	*((volatile unsigned int *)0xbfd00424) &= ~(7 << 28);
 #ifdef RMII
     *((volatile unsigned int *)0xbfd00424) |= (1 << 30); //wl rmii

@@ -13,26 +13,26 @@
 
 #define CONFIG_MIPS32		1
 #define CONFIG_CPU_LOONGSON1
-#define CONFIG_CPU_LOONGSON1B
-#define CONFIG_CPU_NAME	"loongson 1b"
-#define LS1BSOC 1
+#define CONFIG_CPU_LOONGSON1A
+#define CONFIG_CPU_NAME	"loongson 1a"
+#define LS1ASOC 1
 
 #define OSC_CLK		33000000 /* Hz */
-//#define APB_CLK		OSC_CLK
-#define PLL_FREQ		0x1c
-#define PLL_DIV		0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
-#define PLL_CLK		((12+(PLL_FREQ&0x3f))*OSC_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*OSC_CLK/2/1024)
+#define CPU_MULT		8			// CPU倍频
+#define DDR_MULT		4			// DDR倍频
+#define COREPLL_CFG	(0x8888 | (CPU_MULT-4) | ((DDR_MULT-3)<<8))
+#define APB_CLOCK_RATE	((((COREPLL_CFG >> 8) & 7) + 3) * OSC_CLK)
 
 #ifndef CPU_CLOCK_RATE
-#define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */
+#define CPU_CLOCK_RATE	(((COREPLL_CFG & 7) + 4) * OSC_CLK)	/* MHz clock for the MIPS core */
 #endif
 #define CPU_TCLOCK_RATE CPU_CLOCK_RATE 
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE / 2)
 #define CONFIG_SYS_HZ			1000
 
 /* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE		(8*1024)
-#define CONFIG_SYS_ICACHE_SIZE		(8*1024)
+#define CONFIG_SYS_DCACHE_SIZE		(16*1024)
+#define CONFIG_SYS_ICACHE_SIZE		(16*1024)
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Miscellaneous configurable options */
@@ -53,9 +53,9 @@
 #define CONFIG_SYS_LOAD_ADDR		0x80200000
 #define CONFIG_SYS_MEMTEST_START	0x80100000
 #define CONFIG_SYS_MEMTEST_END		0x80800000
-#define CONFIG_DDR16BIT 1
-//#define EIGHT_BANK_MODE 1
-#define CONFIG_MEM_SIZE 0x04000000
+//#define CONFIG_DDR16BIT 1
+#define EIGHT_BANK_MODE 1
+#define CONFIG_MEM_SIZE 0x10000000
 
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 
@@ -64,30 +64,6 @@
 
 /* GPIO */
 #define CONFIG_LS1X_GPIO
-
-/* LED configuration */
-#define CONFIG_GPIO_LED
-#define CONFIG_STATUS_LED
-#define CONFIG_BOARD_SPECIFIC_LED
-
-/* The LED PINs */
-/* LED */
-#define STATUS_LED_BIT			38
-#define STATUS_LED_STATE		STATUS_LED_ON
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 100)
-
-/* LED 1 */
-#define STATUS_LED_BIT1			39
-#define STATUS_LED_STATE1		STATUS_LED_OFF
-#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 100)
-
-/* buzzer LED 2 */
-#define STATUS_LED_BIT2			40
-#define STATUS_LED_STATE2		STATUS_LED_OFF
-#define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 1000)
-
-/* Boot status LED */
-#define STATUS_LED_BOOT			1 /* LED 1 */
 
 /* UART */
 #define CONFIG_CPU_UART
@@ -140,8 +116,8 @@
 #define CONFIG_CMD_MMC
 /* SPI_MMC Settings */
 #define CONFIG_MMC_SPI
-#define CONFIG_MMC_SPI_BUS 0
-#define CONFIG_MMC_SPI_CS 2
+#define CONFIG_MMC_SPI_BUS 1
+#define CONFIG_MMC_SPI_CS 0
 #define CONFIG_CMD_MMC_SPI
 
 /* RTC configuration */
@@ -154,6 +130,7 @@
 #define CONFIG_SYS_NAND_BASE	0xbfe78000
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_LS1X
+#define CONFIG_NAND_USE_LPC_PWM01	//for LS1A
 
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS	/* needed for UBI */
@@ -193,7 +170,7 @@
 #define CONFIG_PHY_ADDR				0
 #define CONFIG_LS1X_GMAC
 #define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	4
-#define CONFIG_GMAC0_100M
+//#define CONFIG_GMAC0_100M
 #define CONFIG_NET_MULTI
 
 /* Framebuffer and LCD */

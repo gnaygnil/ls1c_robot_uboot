@@ -90,20 +90,15 @@ static void calc_clocks(void)
 
 #if defined(CONFIG_CPU_LOONGSON1A)
 	{
-//		int val= readl(LS1X_CLK_PLL_FREQ);
-//		gd->cpu_clk = ((val&7)+1)*APB_CLK;
-//		gd->mem_clk = (((val>>8)&7)+3)*APB_CLK;
-
-//		unsigned int val = strtoul(getenv("pll_reg0"), 0, 0);
-		gd->cpu_clk = ((val&7)+4)*APB_CLK;
-		gd->mem_clk = (((val>>8)&7)+3)*APB_CLK;
+		gd->cpu_clk = CPU_CLOCK_RATE;
+		gd->mem_clk = APB_CLOCK_RATE;
 		gd->bus_clk = gd->mem_clk / 2;
 	}
 #elif defined(CONFIG_CPU_LOONGSON1B)
 	{
 		unsigned int pll = readl(LS1X_CLK_PLL_FREQ);
 		unsigned int ctrl = readl(LS1X_CLK_PLL_DIV);
-		pll_freq = (12 + (pll & 0x3f)) * APB_CLK / 2 + ((pll >> 8) & 0x3ff) * APB_CLK / 1024 / 2;
+		pll_freq = (12 + (pll & 0x3f)) * OSC_CLK / 2 + ((pll >> 8) & 0x3ff) * OSC_CLK / 1024 / 2;
 		gd->cpu_clk = pll_freq / ((ctrl & DIV_CPU) >> DIV_CPU_SHIFT);
 		gd->mem_clk = pll_freq / ((ctrl & DIV_DDR) >> DIV_DDR_SHIFT);
 		gd->bus_clk = gd->mem_clk / 2;
@@ -113,7 +108,7 @@ static void calc_clocks(void)
 	{
 		unsigned int pll_freq = readl(LS1X_CLK_PLL_FREQ);
 		unsigned int clk_div = readl(LS1X_CLK_PLL_DIV);
-		pll_freq = ((pll_freq >> 8) & 0xff) * APB_CLK / 4;
+		pll_freq = ((pll_freq >> 8) & 0xff) * OSC_CLK / 4;
 		if (clk_div & DIV_CPU_SEL) {
 			if(clk_div & DIV_CPU_EN) {
 				gd->cpu_clk = pll_freq / ((clk_div & DIV_CPU) >> DIV_CPU_SHIFT);
@@ -121,7 +116,7 @@ static void calc_clocks(void)
 				gd->cpu_clk = pll_freq / 2;
 			}
 		} else {
-			gd->cpu_clk = APB_CLK;
+			gd->cpu_clk = OSC_CLK;
 		}
 		gd->mem_clk = gd->cpu_clk / ((1 << ((pll_freq & 0x3) + 1)) % 5);
 		gd->bus_clk = gd->mem_clk;

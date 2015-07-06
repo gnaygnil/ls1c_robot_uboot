@@ -801,7 +801,7 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 {
 	int ret;
 
-#if defined(LS1ASOC)
+#if defined(CONFIG_CPU_LOONGSON1A)
 	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
 	#ifdef CONFIG_GMAC0_100M
 	*((volatile unsigned int*)0xbfd00420) |= 0x500;		/* 配置成百兆模式 */
@@ -821,7 +821,7 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 		*((volatile unsigned int*)0xbfd00420) &= ~0xc0;
 		#endif
 	}
-#elif defined(LS1BSOC)
+#elif defined(CONFIG_CPU_LOONGSON1B)
 	/* 寄存器0xbfd00424有GMAC的使能开关 */
 	*((volatile unsigned int*)0xbfd00424) &= ~0x1000;	/* 使能GMAC0 */
 	#ifdef CONFIG_GMAC0_100M
@@ -839,7 +839,7 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 		*((volatile unsigned int*)0xbfd00424) &= ~0xa;	/* 否则配置成千兆模式 */
 		#endif
 	}
-#elif defined(LS1CSOC)
+#elif defined(CONFIG_CPU_LOONGSON1C)
 	*((volatile unsigned int *)0xbfd00424) &= ~(7 << 28);
 #ifdef RMII
     *((volatile unsigned int *)0xbfd00424) |= (1 << 30); //wl rmii

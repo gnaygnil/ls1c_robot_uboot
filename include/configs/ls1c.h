@@ -19,7 +19,7 @@
 
 
 #define OSC_CLK		24000000 /* Hz */
-#define APB_CLK		OSC_CLK
+//#define APB_CLK		OSC_CLK
 
 #define SDRAM_DIV_2		0x0
 #define SDRAM_DIV_3		0x2
@@ -30,7 +30,7 @@
 #define SDRAM_DIV		SDRAM_DIV_2	/* LS1C的SDRAM分频 */
 #define PLL_FREQ		(0x80000008 | (PLL_MULT << 8) | (0x3 << 2) | SDRAM_DIV)
 #define PLL_DIV		(0x00008003 | (CPU_DIV << 8))
-#define PLL_CLK		((((PLL_FREQ >> 8) & 0xff) + ((PLL_FREQ >> 16) & 0xff)) * APB_CLK / 4)
+#define PLL_CLK		((((PLL_FREQ >> 8) & 0xff) + ((PLL_FREQ >> 16) & 0xff)) * OSC_CLK / 4)
 
 #ifndef CPU_CLOCK_RATE
 #define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */

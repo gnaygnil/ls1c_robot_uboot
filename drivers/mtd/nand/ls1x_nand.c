@@ -87,9 +87,9 @@ static void __iomem *order_addr_in;
 	#define MAIN_SPARE_ADDRL(x)	((x) << PAGE_SHIFT)
 #endif
 
-#define	GPIO_CONF1	(ioremap(0x1fd010c4, 4))
-#define	GPIO_CONF2	(ioremap(0x1fd010c8, 4))
-#define	GPIO_MUX	(ioremap(0x1fd00420, 4))
+#define	GPIO_CONF1	(0xbfd010c4)
+#define	GPIO_CONF2	(0xbfd010c8)
+#define	GPIO_MUX	(0xbfd00420)
 
 struct ls1x_nand_info {
 	struct nand_chip	nand_chip;
