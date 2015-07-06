@@ -122,6 +122,7 @@
 
 /* RTC configuration */
 #define CONFIG_RTC_LS1X
+//#define CONFIG_RTC_TOY_LS1X
 #define CONFIG_CMD_DATE
 
 /* NAND settings */

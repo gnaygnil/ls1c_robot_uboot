@@ -19,7 +19,6 @@
 
 
 #define OSC_CLK		24000000 /* Hz */
-//#define APB_CLK		OSC_CLK
 
 #define SDRAM_DIV_2		0x0
 #define SDRAM_DIV_3		0x2
@@ -149,7 +148,7 @@
 #define CONFIG_CMD_MMC_SPI*/
 
 /* RTC configuration */
-#define CONFIG_RTC_LS1X
+#define CONFIG_RTC_TOY_LS1C300B
 #define CONFIG_CMD_DATE
 
 /* NAND settings */

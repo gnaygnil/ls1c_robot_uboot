@@ -18,7 +18,6 @@
 #define LS1BSOC 1
 
 #define OSC_CLK		33000000 /* Hz */
-//#define APB_CLK		OSC_CLK
 #define PLL_FREQ		0x1c
 #define PLL_DIV		0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
 #define PLL_CLK		((12+(PLL_FREQ&0x3f))*OSC_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*OSC_CLK/2/1024)
@@ -146,6 +145,7 @@
 
 /* RTC configuration */
 #define CONFIG_RTC_LS1X
+//#define CONFIG_RTC_TOY_LS1X
 #define CONFIG_CMD_DATE
 
 /* NAND settings */
