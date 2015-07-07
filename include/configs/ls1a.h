@@ -110,6 +110,7 @@
 	"serverip=192.168.1.3\0" \
 	"ipaddr=192.168.1.2\0" \
 	"ethaddr=10:84:7F:B5:9D:Fc\0" \
+	"panel=" "vesa800x600@75" "\0" \
 
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
@@ -179,6 +180,7 @@
 #define CONFIG_VIDEO
 #define VIDEO_FB_16BPP_WORD_SWAP
 #define CONFIG_VIDEO_LS1X
+#define CONFIG_VIDEO_LS1X_VGA_MODEM
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV

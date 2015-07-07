@@ -1,5 +1,8 @@
 /*
- * 
+ * Porting to u-boot:
+ *
+ * (C) Copyright 2014
+ * TangHaifeng <tanghaifeng-gz@loongson.cn>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -45,6 +48,21 @@ static struct fb_videomode const at070tn93 = {
 	.sync		= FB_SYNC_VERT_HIGH_ACT | FB_SYNC_HOR_HIGH_ACT,
 };
 
+static struct fb_videomode const vesa800x600_75 = {	//VESA 800x600@75Hz
+	.name	= "VESA",
+	.pixclock	= 20202,
+	.refresh	= 75,
+	.xres		= 800,
+	.yres		= 600,
+	.hsync_len	= 80,		// 896-816
+	.left_margin	= 160,	// 1056-896
+	.right_margin	= 16,	// 816-800
+	.vsync_len	= 3,		// 484-481
+	.upper_margin	= 21,	// 500-484
+	.lower_margin	= 1,	// 481-480
+	.sync		= FB_SYNC_VERT_HIGH_ACT | FB_SYNC_HOR_HIGH_ACT,
+};
+
 struct ls1xfb_mach_info ls1x_lcd0_info = {
 	.base		= LS1X_DC0_BASE,
 	.id			= "Graphic lcd",
@@ -56,6 +74,20 @@ struct ls1xfb_mach_info ls1x_lcd0_info = {
 	.invert_pixclock	= 0,
 	.invert_pixde	= 0,
 };
+
+#if defined(CONFIG_CPU_LOONGSON1A)
+struct ls1xfb_mach_info ls1x_lcd1_info = {
+	.base		= LS1X_DC1_BASE,
+	.id			= "Graphic vga",
+	.modes			= (struct fb_videomode *)&vesa800x600_75,
+//	.num_modes		= ARRAY_SIZE(video_modes),
+	.pix_fmt		= PIX_FMT_RGB565,
+	.de_mode		= 0,	/* 注意：lcd是否使用DE模式 */
+	/* 根据lcd屏修改invert_pixclock和invert_pixde参数(0或1)，部分lcd可能显示不正常 */
+	.invert_pixclock	= 0,
+	.invert_pixde	= 0,
+};
+#endif
 
 static void backlight(int on)
 {
@@ -90,6 +122,12 @@ int board_video_skip(void)
 			ls1x_lcd0_info.modes = (struct fb_videomode *)&at070tn93;
 			ret = ls1x_fb_init(&at070tn93, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
 		}
+	#if defined(CONFIG_CPU_LOONGSON1A)
+		else if (strcmp(e, "vesa800x600@75") == 0) {
+			ls1x_lcd1_info.modes = (struct fb_videomode *)&vesa800x600_75;
+			ret = ls1x_fb_init(&vesa800x600_75, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd1_info);
+		}
+	#endif
 		if (ret)
 			printf("Panel cannot be configured: %d\n", ret);
 	} else {

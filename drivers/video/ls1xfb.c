@@ -462,6 +462,7 @@ static void set_dumb_panel_control(struct fb_info *info)
 	 */
 	x = readl(fbi->reg_base + LS1X_FB_PANEL_CONF) & 0x80001110;
 
+	/* PAN_CONFIG寄存器最高位需要置1，否则lcd时钟延时一段时间才会有输出 */
 	if (unlikely(vga_mode)) {
 		/* have to set 0x80001310 */
 		writel_reg(x | 0x80001310, fbi->reg_base + LS1X_FB_PANEL_CONF);
@@ -687,6 +688,9 @@ static int ls1xfb_probe(u32 interface_pix_fmt, uint8_t disp,
 	struct ls1xfb_info *ls1xfbi;
 	int ret = 0;
 
+#ifdef CONFIG_VIDEO_LS1X_VGA_MODEM
+	vga_mode = 1;
+#endif
 	/*
 	 * Initialize FB structures
 	 */
@@ -730,7 +734,8 @@ static int ls1xfb_probe(u32 interface_pix_fmt, uint8_t disp,
 	}
 	info->screen_size = info->fix.smem_len;
 
-	info->screen_base = (char *)(((unsigned int)malloc(info->fix.smem_len) & 0x0fffffff) | 0xa0000000);
+	/* 注意申请dma缓冲区时需字节对齐 */
+	info->screen_base = (char *)(((unsigned int)memalign(ARCH_DMA_MINALIGN, info->fix.smem_len) & 0x0fffffff) | 0xa0000000);
 	if (info->screen_base == NULL) {
 		ret = -ENOMEM;
 		goto failed_free_info;
