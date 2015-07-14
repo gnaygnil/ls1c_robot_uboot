@@ -248,7 +248,7 @@ static s32 synopGMAC_linux_open(struct eth_device *dev)
 	synopGMACdevice *gmacdev = synopGMACdev;
 
 	/*Lets reset the IP*/
-	synopGMAC_reset(gmacdev);
+//	synopGMAC_reset(gmacdev);
 
 	/* we do not process interrupts */
 	synopGMAC_disable_interrupt_all(gmacdev);
@@ -344,6 +344,29 @@ static int gmac_send(struct eth_device *dev, void *packet, int length)
 		}
 	}
 	return 0;
+}
+
+static int mac_reset(struct eth_device *dev)
+{
+	struct dw_eth_dev *priv = dev->priv;
+	struct eth_mac_regs *mac_p = priv->mac_regs_p;
+	struct eth_dma_regs *dma_p = priv->dma_regs_p;
+
+	ulong start;
+	int timeout = CONFIG_MACRESET_TIMEOUT;
+
+	writel(DMAMAC_SRST, &dma_p->busmode);
+
+	start = get_timer(0);
+	while (get_timer(start) < timeout) {
+		if (!(readl(&dma_p->busmode) & DMAMAC_SRST))
+			return 0;
+
+		/* Try again after 10usec */
+		udelay(10);
+	};
+
+	return -1;
 }
 
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
@@ -538,14 +561,14 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 
 #if defined(CONFIG_CPU_LOONGSON1A)
 	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
-	#ifdef CONFIG_GMAC0_100M
+	#ifdef CONFIG_LS1X_GMAC0_100M
 	*((volatile unsigned int*)0xbfd00420) |= 0x500;		/* 配置成百兆模式 */
 	#else
 	*((volatile unsigned int*)0xbfd00420) &= ~0x500;		/* 否则配置成千兆模式 */
 	#endif
 	if (base_addr == 0xbfe20000) {
 		*((volatile unsigned int*)0xbfd00420) &= ~0x01000000;	/* 使能GMAC1 */
-		#ifdef CONFIG_GMAC1_100M
+		#ifdef CONFIG_LS1X_GMAC1_100M
 		*((volatile unsigned int*)0xbfd00420) |= 0xa00;		/* 配置成百兆模式 */
 		#else
 		*((volatile unsigned int*)0xbfd00420) &= ~0xa00;		/* 否则配置成千兆模式 */
@@ -559,7 +582,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 #elif defined(CONFIG_CPU_LOONGSON1B)
 	/* 寄存器0xbfd00424有GMAC的使能开关 */
 	*((volatile unsigned int*)0xbfd00424) &= ~0x1000;	/* 使能GMAC0 */
-	#ifdef CONFIG_GMAC0_100M
+	#ifdef CONFIG_LS1X_GMAC0_100M
 	*((volatile unsigned int*)0xbfd00424) |= 0x5;		/* 配置成百兆模式 */
 	#else
 	*((volatile unsigned int*)0xbfd00424) &= ~0x5;	/* 否则配置成千兆模式 */
@@ -568,7 +591,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 	if (base_addr == 0xbfe20000) {
 		*((volatile unsigned int*)0xbfd00420) |= 0x18;
 		*((volatile unsigned int*)0xbfd00424) &= ~0x2000;	/* 使能GMAC1 */
-		#ifdef CONFIG_GMAC1_100M
+		#ifdef CONFIG_LS1X_GMAC1_100M
 		*((volatile unsigned int*)0xbfd00424) |= 0xa;		/* 配置成百兆模式 */
 		#else
 		*((volatile unsigned int*)0xbfd00424) &= ~0xa;	/* 否则配置成千兆模式 */
@@ -576,7 +599,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 	}
 #elif defined(CONFIG_CPU_LOONGSON1C)
 	*((volatile unsigned int *)0xbfd00424) &= ~(7 << 28);
-#ifdef RMII
+#ifdef CONFIG_LS1X_GMAC_RMII
     *((volatile unsigned int *)0xbfd00424) |= (1 << 30); //wl rmii
 #endif
 #endif
@@ -614,8 +637,6 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 	dev->priv = priv;
 //	dev->priv = synopGMACdev;
 
-	synopGMAC_linux_open(dev);
-
 	priv->dev = dev;
 	priv->mac_regs_p = (struct eth_mac_regs *)base_addr;
 	priv->dma_regs_p = (struct eth_dma_regs *)(base_addr +
@@ -634,6 +655,11 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 	dw_mdio_init(dev->name, priv->mac_regs_p);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 
-	return dw_phy_init(dev);
+	dw_phy_init(dev);
+
+	mac_reset(dev);
+	synopGMAC_linux_open(dev);
+
+	return 1;
 }
 

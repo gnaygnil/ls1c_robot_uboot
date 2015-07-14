@@ -200,7 +200,7 @@ s32 synopGMAC_reset (synopGMACdevice * gmacdev )
 		TR("DATA after Reset = %08x\n",data);
 		if (data & DmaResetOn) {
 			if(cnt > 10)
-			printf("Bus Mode Reg after reset: 0x%08x\n", data);
+				printf("Bus Mode Reg after reset: 0x%08x\n", data);
 //			udelay(1);
 			cnt ++;
 		} else

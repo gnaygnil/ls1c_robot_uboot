@@ -13,26 +13,25 @@
 
 #define CONFIG_MIPS32		1
 #define CONFIG_CPU_LOONGSON1
-#define CONFIG_CPU_LOONGSON1A
-#define CONFIG_CPU_NAME	"loongson 1a"
-#define LS1ASOC 1
+#define CONFIG_CPU_LOONGSON1B
+#define CONFIG_CPU_NAME	"loongson 1b"
+#define LS1BSOC 1
 
-#define OSC_CLK		33000000 /* Hz */
-#define CPU_MULT		8			// CPU倍频
-#define DDR_MULT		4			// DDR倍频
-#define COREPLL_CFG	(0x8888 | (CPU_MULT-4) | ((DDR_MULT-3)<<8))
-#define APB_CLOCK_RATE	((((COREPLL_CFG >> 8) & 7) + 3) * OSC_CLK)
+#define OSC_CLK		25000000 /* Hz */
+#define PLL_FREQ		0x29
+#define PLL_DIV		0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
+#define PLL_CLK		((12+(PLL_FREQ&0x3f))*OSC_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*OSC_CLK/2/1024)
 
 #ifndef CPU_CLOCK_RATE
-#define CPU_CLOCK_RATE	(((COREPLL_CFG & 7) + 4) * OSC_CLK)	/* MHz clock for the MIPS core */
+#define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */
 #endif
 #define CPU_TCLOCK_RATE CPU_CLOCK_RATE 
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE / 2)
 #define CONFIG_SYS_HZ			1000
 
 /* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE		(16*1024)
-#define CONFIG_SYS_ICACHE_SIZE		(16*1024)
+#define CONFIG_SYS_DCACHE_SIZE		(8*1024)
+#define CONFIG_SYS_ICACHE_SIZE		(8*1024)
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Miscellaneous configurable options */
@@ -74,7 +73,7 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	 1
 #define CONFIG_SYS_NS16550_CLK	0
-#define CONFIG_SYS_NS16550_COM1	 0xbfe48000
+#define CONFIG_SYS_NS16550_COM1	 0xbfe7c000
 #define UART_BASE_ADDR	CONFIG_SYS_NS16550_COM1
 
 /* SPI Settings */
@@ -110,15 +109,14 @@
 	"serverip=192.168.1.3\0" \
 	"ipaddr=192.168.1.2\0" \
 	"ethaddr=10:84:7F:B5:9D:Fc\0" \
-	"panel=" "vesa800x600@75" "\0" \
 
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_MMC
 /* SPI_MMC Settings */
 #define CONFIG_MMC_SPI
-#define CONFIG_MMC_SPI_BUS 1
-#define CONFIG_MMC_SPI_CS 0
+#define CONFIG_MMC_SPI_BUS 0
+#define CONFIG_MMC_SPI_CS 2
 #define CONFIG_CMD_MMC_SPI
 
 /* RTC configuration */
@@ -132,7 +130,6 @@
 #define CONFIG_SYS_NAND_BASE	0xbfe78000
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_LS1X
-#define CONFIG_NAND_USE_LPC_PWM01	//for LS1A
 
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS	/* needed for UBI */
@@ -172,8 +169,7 @@
 #define CONFIG_PHY_ADDR				0
 #define CONFIG_LS1X_GMAC
 #define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	4
-//#define CONFIG_LS1X_GMAC0_100M
-#define CONFIG_PHY_REALTEK
+#define CONFIG_LS1X_GMAC0_100M
 #define CONFIG_NET_MULTI
 
 /* Framebuffer and LCD */
@@ -181,7 +177,6 @@
 #define CONFIG_VIDEO
 #define VIDEO_FB_16BPP_WORD_SWAP
 #define CONFIG_VIDEO_LS1X
-#define CONFIG_VIDEO_LS1X_VGA_MODEM
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV

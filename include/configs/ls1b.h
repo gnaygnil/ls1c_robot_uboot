@@ -193,7 +193,7 @@
 #define CONFIG_PHY_ADDR				0
 #define CONFIG_LS1X_GMAC
 #define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	4
-#define CONFIG_GMAC0_100M
+#define CONFIG_LS1X_GMAC0_100M
 #define CONFIG_NET_MULTI
 
 /* Framebuffer and LCD */

@@ -53,37 +53,22 @@
 
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-#define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
+#define CONFIG_SYS_BOOTPARAMS_LEN	(16 * 1024 * 1024)
 
 /* memory */
-#define CONFIG_SYS_SDRAM_BASE		0xa0000000	/* Cached addr */
+#define CONFIG_SYS_SDRAM_BASE		0x80000000	/* Cached addr */
 #define CONFIG_SYS_INIT_SP_OFFSET	0x00040000
-#define CONFIG_SYS_LOAD_ADDR		0xa0200000
-#define CONFIG_SYS_MEMTEST_START	0xa0100000
-#define CONFIG_SYS_MEMTEST_END		0xa0800000
-#define CONFIG_MEM_SIZE 0x08000000
-#define SDRAM_USE_CS1
+#define CONFIG_SYS_LOAD_ADDR		0x80200000
+#define CONFIG_SYS_MEMTEST_START	0x80100000
+#define CONFIG_SYS_MEMTEST_END		0x80800000
+#define CONFIG_MEM_SIZE 0x04000000
+//#define SDRAM_USE_CS1
+
+#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 
 /* misc settings */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f() */
-
-/* GPIO */
-#define CONFIG_LS1X_GPIO
-
-/* LED configuration */
-#define CONFIG_GPIO_LED
-#define CONFIG_STATUS_LED
-#define CONFIG_BOARD_SPECIFIC_LED
-
-/* The LED PINs */
-/* buzzer LED 0 */
-#define STATUS_LED_BIT			37
-#define STATUS_LED_STATE		STATUS_LED_OFF
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 1000)
-
-/* Boot status LED */
-#define STATUS_LED_BOOT			0 /* LED 0 */
 
 /* UART */
 #define CONFIG_CPU_UART
@@ -131,21 +116,9 @@
 	"ipaddr=192.168.1.2\0" \
 	"ethaddr=10:84:7F:B5:9D:Fc\0" \
 
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_MMC
-/* SDIO_MMC Settings */
-#define CONFIG_LS1X_MMC
-#define CONFIG_LS1X_MMC_CD 84
-#define CONFIG_LS1X_MMC_WP 32
-/* SPI_MMC Settings */
-/*#define CONFIG_MMC_SPI
-#define CONFIG_MMC_SPI_BUS 0
-#define CONFIG_MMC_SPI_CS 2
-#define CONFIG_CMD_MMC_SPI*/
-
 /* RTC configuration */
-#define CONFIG_RTC_TOY_LS1C300B
+#define CONFIG_RTC_LS1X
+//#define CONFIG_RTC_TOY_LS1X
 #define CONFIG_CMD_DATE
 
 /* NAND settings */
@@ -156,7 +129,7 @@
 #define CONFIG_SYS_NAND_BASE	0xbfe78000
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_LS1X
-#define CONFIG_NAND_LS1X_READ_DELAY
+//#define CONFIG_NAND_LS1X_READ_DELAY
 
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS	/* needed for UBI */
@@ -204,11 +177,12 @@
 /* Ethernet driver configuration */
 #define CONFIG_MII
 #define CONFIG_PHYLIB
-#define CONFIG_PHY_ADDR				19
+#define CONFIG_PHY_ADDR				0
 #define CONFIG_LS1X_GMAC
 #define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	4
-#define CONFIG_GMAC0_100M
-#define RMII 1
+#define CONFIG_LS1X_GMAC0_100M
+#define CONFIG_LS1X_GMAC_RMII
+#define CONFIG_PHY_REALTEK
 #define CONFIG_NET_MULTI
 
 /* Framebuffer and LCD */
@@ -224,25 +198,6 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
-
-/* I2C settings */
-#define CONFIG_LS1X_I2C	1
-#define CONFIG_HARD_I2C		1
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0
-#define CONFIG_CMD_I2C
-
-/*
- * PCA9554 is at I2C1-0x3f (I know it says "PCA953X", it's a PCA9554).  You
- * must first select the I2C1 bus with "i2c dev 1" or the "pca953x" command
- * will not be able to access the chip.
- */
-#define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
-#define CONFIG_SYS_I2C_PCA953X_ADDR	0x20
-#define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x20, 16} }
-#define CONFIG_BACKLIGHT_GPIO 10
 
 /*
  * Command line configuration.

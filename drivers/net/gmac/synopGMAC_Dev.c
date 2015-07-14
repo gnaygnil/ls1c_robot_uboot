@@ -51,7 +51,7 @@ s32 synopGMAC_reset(synopGMACdevice *gmacdev)
 		TR("DATA after Reset = %08x\n",data);
 		if (data & DmaResetOn) {
 			if(cnt > 10)
-			printf("Bus Mode Reg after reset: 0x%08x\n", data);
+				printf("Bus Mode Reg after reset: 0x%08x\n", data);
 //			udelay(1);
 			cnt ++;
 		} else
@@ -233,6 +233,7 @@ void synopGMAC_init_tx_desc_base(synopGMACdevice *gmacdev)
  * Checks whether the descriptor is owned by DMA.
  * If descriptor is owned by DMA then the OWN bit is set to 1. This API is same for both ring and chain mode.
  * @param[in] pointer to DmaDesc structure.
+
  * \return returns true if Dma owns descriptor and false if not.
  */
 int synopGMAC_is_desc_owned_by_dma(DmaDesc *desc)

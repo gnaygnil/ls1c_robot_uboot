@@ -68,7 +68,7 @@ boot:
 	sw		a1, 0x4(t1)
 	DELAY(10)
 
-	li t0, 0xbfd00000
+/*	li t0, 0xbfd00000
 	lw t1, 0x10c4(a0)
 	or t1, 0x00000020
 	sw t1, 0x10c4(a0)
@@ -79,7 +79,7 @@ boot:
 	
 	lw t1, 0x10f4(a0)
 	and t1, 0xffffffdf
-	sw t1, 0x10f4(a0)
+	sw t1, 0x10f4(a0)*/
 
 	/* 初始化nand */
 	li		t3, 0x0

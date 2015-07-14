@@ -1,5 +1,3 @@
-//#define	SD_FREQ	(6 * PLL_M) / (2 * SDRAM_PARAM_DIV_NUM)
-#define	SD_FREQ	(((APB_CLK / 4) * (PLL_MULT / CPU_DIV)) / SDRAM_PARAM_DIV_NUM)
 /* 颗粒行数 */
 #define	ROW_1K		0x7
 #define	ROW_2K		0x0
@@ -20,9 +18,9 @@
 #define	TRCD		3
 #define	TCL			3
 #define	TRP			3
-#define	TRFC		9
-#define	TRAS		7
-#define	TREF		0x926
+#define	TRFC		8
+#define	TRAS		6
+#define	TREF		0x818
 #define	TWR			2
 
 #define	DEF_SEL		0x1

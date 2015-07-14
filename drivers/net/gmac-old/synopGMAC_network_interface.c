@@ -733,7 +733,7 @@ static int init_phy(synopGMACdevice *gmacdev)
 	synopGMAC_read_phy_reg(gmacdev->MacBase, gmacdev->PhyBase, 2, &data);
 	synopGMAC_read_phy_reg(gmacdev->MacBase, gmacdev->PhyBase, 3, &data1);
 //	printf("PHY ID %x %x\n", data, data1);
-#ifdef RMII
+#ifdef CONFIG_LS1X_GMAC_RMII
 	/* RTL8201EL */
 	if ((data == 0x001c) && (data1 == 0xc815)) {
 		/*  设置寄存器25，使能RMII模式 */
@@ -803,14 +803,14 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 
 #if defined(CONFIG_CPU_LOONGSON1A)
 	*((volatile unsigned int*)0xbfd00420) &= ~0x00800000;	/* 使能GMAC0 */
-	#ifdef CONFIG_GMAC0_100M
+	#ifdef CONFIG_LS1X_GMAC0_100M
 	*((volatile unsigned int*)0xbfd00420) |= 0x500;		/* 配置成百兆模式 */
 	#else
 	*((volatile unsigned int*)0xbfd00420) &= ~0x500;		/* 否则配置成千兆模式 */
 	#endif
 	if (base_addr == 0xbfe20000) {
 		*((volatile unsigned int*)0xbfd00420) &= ~0x01000000;	/* 使能GMAC1 */
-		#ifdef CONFIG_GMAC1_100M
+		#ifdef CONFIG_LS1X_GMAC1_100M
 		*((volatile unsigned int*)0xbfd00420) |= 0xa00;		/* 配置成百兆模式 */
 		#else
 		*((volatile unsigned int*)0xbfd00420) &= ~0xa00;		/* 否则配置成千兆模式 */
@@ -824,7 +824,7 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 #elif defined(CONFIG_CPU_LOONGSON1B)
 	/* 寄存器0xbfd00424有GMAC的使能开关 */
 	*((volatile unsigned int*)0xbfd00424) &= ~0x1000;	/* 使能GMAC0 */
-	#ifdef CONFIG_GMAC0_100M
+	#ifdef CONFIG_LS1X_GMAC0_100M
 	*((volatile unsigned int*)0xbfd00424) |= 0x5;		/* 配置成百兆模式 */
 	#else
 	*((volatile unsigned int*)0xbfd00424) &= ~0x5;	/* 否则配置成千兆模式 */
@@ -833,7 +833,7 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 	if (base_addr == 0xbfe20000) {
 		*((volatile unsigned int*)0xbfd00420) |= 0x18;
 		*((volatile unsigned int*)0xbfd00424) &= ~0x2000;	/* 使能GMAC1 */
-		#ifdef CONFIG_GMAC1_100M
+		#ifdef CONFIG_LS1X_GMAC1_100M
 		*((volatile unsigned int*)0xbfd00424) |= 0xa;		/* 配置成百兆模式 */
 		#else
 		*((volatile unsigned int*)0xbfd00424) &= ~0xa;	/* 否则配置成千兆模式 */
@@ -841,7 +841,7 @@ int synopGMAC_init_network_interface(u32 id, ulong base_addr, u32 phy_addr)
 	}
 #elif defined(CONFIG_CPU_LOONGSON1C)
 	*((volatile unsigned int *)0xbfd00424) &= ~(7 << 28);
-#ifdef RMII
+#ifdef CONFIG_LS1X_GMAC_RMII
     *((volatile unsigned int *)0xbfd00424) |= (1 << 30); //wl rmii
 #endif
 /*    *((volatile unsigned int *)0xbfd011c0) &= 0x000fffff; //gpio[37:21] used as mac

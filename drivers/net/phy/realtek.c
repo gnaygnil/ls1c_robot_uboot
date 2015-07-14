@@ -32,6 +32,14 @@ static int rtl8211x_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int rtl8201el_config(struct phy_device *phydev)
+{
+#ifdef CONFIG_LS1X_GMAC_RMII
+	phy_write(phydev, MDIO_DEVAD_NONE, 25, 0x400);
+#endif
+	return 0;
+}
+
 static int rtl8211x_parse_status(struct phy_device *phydev)
 {
 	unsigned int speed;
@@ -131,11 +139,23 @@ static struct phy_driver RTL8211DN_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+/* Support for RTL8211DN PHY */
+static struct phy_driver RTL8201EL_driver = {
+	.name = "RealTek RTL8201EL",
+	.uid = 0x1cc815,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &rtl8201el_config,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_realtek_init(void)
 {
 	phy_register(&RTL8211B_driver);
 	phy_register(&RTL8211E_driver);
 	phy_register(&RTL8211DN_driver);
+	phy_register(&RTL8201EL_driver);
 
 	return 0;
 }
