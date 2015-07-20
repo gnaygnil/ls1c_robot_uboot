@@ -324,6 +324,7 @@ LEAF(initserial)
 	divu	v1, v1, a1
 #elif defined(CONFIG_CPU_LOONGSON1C)
 	/* uart3 config mux 默认第一复用 */
+#if (UART_BASE_ADDR == 0xbfe4c000)
 	li		a0, 0xbfd011c4
 //	lw		a1, 0x00(a0)
 //	and		a1, 0xfffffff9
@@ -342,18 +343,19 @@ LEAF(initserial)
 	lw		a1, 0x00(a0)
 	ori		a1, 0x03
 	sw		a1, 0x00(a0)*/
-
+#elif (UART_BASE_ADDR == 0xbfe48000)
 	/* UART2 */
-/*	li		a0, 0xbfd011c4
+	li		a0, 0xbfd011c4
 	lw		a1, 0x10(a0)
 	ori		a1, 0x30
-	sw		a1, 0x10(a0)*/
-
+	sw		a1, 0x10(a0)
+#elif (UART_BASE_ADDR == 0xbfe44000)
 	/* UART1 */
-/*	li		a0, 0xbfd011f0
+	li		a0, 0xbfd011f0
 	lw		a1, 0x00(a0)
 	ori		a1, 0x0c
-	sw		a1, 0x00(a0)*/
+	sw		a1, 0x00(a0)
+#endif
 
 	li		a0, 0xbfe78030
 	lw		a1, 0(a0)

@@ -14,7 +14,7 @@
 #define CONFIG_MIPS32		1
 #define CONFIG_CPU_LOONGSON1
 #define CONFIG_CPU_LOONGSON1C
-#define CONFIG_CPU_NAME	"loongson 1c"
+#define CONFIG_BOARD_NAME	"ls1c test board"
 #define LS1CSOC 1
 
 
@@ -96,6 +96,11 @@
 
 /* Env Storage Settings */
 #if 1
+/*
+#define CONFIG_ENV_IS_IN_NVRAM	1
+#define CONFIG_ENV_ADDR		0xBFC40000
+#define CONFIG_ENV_SIZE		0x20000
+*/
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	30000000

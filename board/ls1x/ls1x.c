@@ -56,7 +56,7 @@ int checkboard(void)
 	set_io_port_base(0x0);
 
 	printf("checkboard\n");
-	printf("Board: %s ", CONFIG_CPU_NAME);
+	printf("Board: %s ", CONFIG_BOARD_NAME);
 	printf("(CPU Speed %ld MHz/ Mem @ %ld MHz/ Bus @ %ld MHz)\n", gd->cpu_clk/1000000, gd->mem_clk/1000000, gd->bus_clk/1000000);
 
 	return 0;
