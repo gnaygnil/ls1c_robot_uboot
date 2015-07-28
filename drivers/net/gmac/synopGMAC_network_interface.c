@@ -248,7 +248,7 @@ static s32 synopGMAC_linux_open(struct eth_device *dev)
 	synopGMACdevice *gmacdev = synopGMACdev;
 
 	/*Lets reset the IP*/
-//	synopGMAC_reset(gmacdev);
+	synopGMAC_reset(gmacdev);
 
 	/* we do not process interrupts */
 	synopGMAC_disable_interrupt_all(gmacdev);
@@ -657,7 +657,7 @@ int synopGMAC_initialize(ulong base_addr, u32 interface)
 
 	dw_phy_init(dev);
 
-	mac_reset(dev);
+//	mac_reset(dev);
 	synopGMAC_linux_open(dev);
 
 	return 1;
