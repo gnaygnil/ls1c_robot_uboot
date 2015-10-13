@@ -188,8 +188,8 @@ static u16 ls1x_nand_read_word(struct mtd_info *mtd)
 
 	if (!(info->buf_start & 0x1) && info->buf_start < info->buf_count) {
 		retval = *(u16 *)(info->data_buff + info->buf_start);
+		info->buf_start += 2;
 	}
-	info->buf_start += 2;
 	return retval;
 }
 
@@ -406,10 +406,14 @@ static void ls1x_nand_cmdfunc(struct mtd_info *mtd, unsigned command, int column
 		info->buf_count = 0x0;
 		info->buf_start = 0x0;
 		break;
+	case NAND_CMD_RNDOUT:
+		info->buf_count = mtd->oobsize + mtd->writesize;
+		info->buf_start = column;
+		break;
 	default :
 		info->buf_count = 0x0;
 		info->buf_start = 0x0;
-		printf("non-supported command.\n");
+		printf("ls1x nand non-supported command %x.\n", command);
 		break;
 	}
 

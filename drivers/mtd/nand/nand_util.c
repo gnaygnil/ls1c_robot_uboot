@@ -549,7 +549,7 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		return -EFBIG;
 	}
 
-	if (!need_skip && !(flags & WITH_DROP_FFS)) {
+	if (!need_skip && !(flags & WITH_DROP_FFS) && !(flags & WITH_YAFFS_OOB)) {
 		rval = nand_write(nand, offset, length, buffer);
 		if (rval == 0)
 			return 0;

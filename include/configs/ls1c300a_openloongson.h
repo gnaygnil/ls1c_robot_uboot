@@ -14,7 +14,8 @@
 #define CONFIG_MIPS32		1
 #define CONFIG_CPU_LOONGSON1
 #define CONFIG_CPU_LOONGSON1C
-#define CONFIG_BOARD_NAME	"openloongson v1.0 2015.03"
+//#define CONFIG_BOARD_NAME	"openloongson v1.0 2015.03"
+#define CONFIG_BOARD_NAME	"openloongson v2.0 2015.09"
 #define LS1CSOC 1
 
 
@@ -59,7 +60,7 @@
 /* memory */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000	/* Cached addr */
 #define CONFIG_SYS_INIT_SP_OFFSET	0x00040000
-#define CONFIG_SYS_LOAD_ADDR		0x80200000
+#define CONFIG_SYS_LOAD_ADDR		0x81000000
 #define CONFIG_SYS_MEMTEST_START	0x80100000
 #define CONFIG_SYS_MEMTEST_END		0x80800000
 #define CONFIG_MEM_SIZE 0x02000000	/* 32MByte 注意根据使用的内存颗粒大小修改 */
@@ -104,9 +105,9 @@
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
-#define CONFIG_ENV_OFFSET	0x7e000	/* 512KB - 8KB */
+#define CONFIG_ENV_OFFSET	0x68000	/* 保留0x18000 */
 #define CONFIG_ENV_SIZE		0x2000	/* 8KB */
-#define CONFIG_ENV_SECT_SIZE	256	/* 4KB */
+#define CONFIG_ENV_SECT_SIZE	256
 #else
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET	0x80000	/* 512KB偏移 */
@@ -144,6 +145,8 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_LS1X
 //#define CONFIG_NAND_LS1X_READ_DELAY
+/* support for yaffs */
+#define CONFIG_CMD_NAND_YAFFS
 
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS	/* needed for UBI */
@@ -230,8 +233,11 @@
 #define CONFIG_CMD_MD5SUM
 
 #define CONFIG_BOOTDELAY	2		/* Autoboot after 5 seconds	*/
-#define CONFIG_BOOTCOMMAND	"tftp a2000000 uImage\;bootm 82000000"	/* Autoboot command	*/
-#define CONFIG_BOOTARGS		"console=ttyS3,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=cramfs video=ls1xfb:480x272-16@60"
+//#define CONFIG_BOOTCOMMAND	"tftp a01fffc0 uImage\;bootm 801fffc0"	/* Autoboot command	*/
+//#define CONFIG_BOOTCOMMAND	"tftp a1000000 uImage\;bootm 81000000"	/* Autoboot command	*/
+#define CONFIG_BOOTCOMMAND	"nboot kernel\;bootm 81000000" /* 注意： nboot默认加载地址为CONFIG_SYS_LOAD_ADDR，CONFIG_SYS_LOAD_ADDR要与bootm的地址一致 */
+//#define CONFIG_BOOTARGS		"console=ttyS2,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=cramfs video=ls1xfb:480x272-16@60"
+#define CONFIG_BOOTARGS		"console=ttyS2,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=yaffs2 rw video=ls1xfb:480x272-16@60"
 
 
 #endif	/* __CONFIG_H */
