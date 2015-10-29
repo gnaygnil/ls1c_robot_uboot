@@ -176,6 +176,14 @@ static void boot_prep_linux(bootm_headers_t *images)
 
 	linux_env_set("memsize", env_buf);
 
+#ifdef CONFIG_CPU_LOONGSON1
+	sprintf(env_buf, "%lu", (ulong)(gd->mem_clk));
+	linux_env_set("busclock", env_buf);
+	
+	sprintf(env_buf, "%lu", (ulong)(gd->cpu_clk));
+	linux_env_set("cpuclock", env_buf);
+#endif
+
 	sprintf(env_buf, "0x%08lX", rd_start);
 	linux_env_set("initrd_start", env_buf);
 
