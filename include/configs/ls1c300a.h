@@ -3,7 +3,7 @@
  */
 
 /*
- * This file contains the configuration parameters for the ls1b board.
+ * This file contains the configuration parameters for the ls1c test board.
  */
 
 #ifndef __CONFIG_H
@@ -19,6 +19,9 @@
 
 
 #define OSC_CLK		24000000 /* Hz */
+#define LS1X_SPI_SFC_PARAM	0x1b	/* 设置SPI flash控制器的模式，加快启动
+									div 4, double I/O + burst_en + memory_en 模式
+									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
 
 #define SDRAM_DIV_2		0x0
 #define SDRAM_DIV_3		0x2
