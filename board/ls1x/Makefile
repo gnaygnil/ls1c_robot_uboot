@@ -10,8 +10,8 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS-y	+= $(BOARD).o
 SOBJS	= lowlevel_init.o
-COBJS-$(CONFIG_CPU_LOONGSON1A)	+= ddr2fconfig-1a-samsung-CL3.o
-COBJS-$(CONFIG_CPU_LOONGSON1B)	+= ddr2fconfig.o
+COBJS-$(CONFIG_CPU_LOONGSON1A)	+= ddr2_config_1a_CL3.o
+COBJS-$(CONFIG_CPU_LOONGSON1B)	+= ddr2_config_1b_CL3.o
 COBJS-$(CONFIG_VIDEO)	+= ls1x_video.o
 
 COBJS	:= $(COBJS-y)
