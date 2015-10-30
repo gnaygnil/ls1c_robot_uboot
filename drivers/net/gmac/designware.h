@@ -89,12 +89,14 @@ struct eth_dma_regs {
 #endif
 
 /* Bus mode register definitions */
+#define PBL8X_MODE		(1 << 24)
 #define FIXEDBURST		(1 << 16)
 #define PRIORXTX_41		(3 << 14)
 #define PRIORXTX_31		(2 << 14)
 #define PRIORXTX_21		(1 << 14)
 #define PRIORXTX_11		(0 << 14)
 #define DMA_PBL			(CONFIG_DW_GMAC_DEFAULT_DMA_PBL<<8)
+#define DMA_RPBL			(CONFIG_DW_GMAC_DEFAULT_DMA_PBL<<17)
 #define RXHIGHPRIO		(1 << 1)
 #define DMAMAC_SRST		(1 << 0)
 

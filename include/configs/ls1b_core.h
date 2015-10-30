@@ -179,7 +179,7 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ADDR				0
 #define CONFIG_LS1X_GMAC
-#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	4
+#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	1
 #define CONFIG_LS1X_GMAC0_100M
 #define CONFIG_NET_MULTI
 
@@ -213,9 +213,9 @@
 #define CONFIG_MD5
 #define CONFIG_CMD_MD5SUM
 
-#define CONFIG_BOOTDELAY	5		/* Autoboot after 5 seconds	*/
-//#define CONFIG_BOOTCOMMAND	"tftp a2000000 uImage\;bootm 82000000"	/* Autoboot command	*/
-#define CONFIG_BOOTCOMMAND	"nboot kernel\;bootm 82000000" /* 注意： nboot默认加载地址为CONFIG_SYS_LOAD_ADDR，CONFIG_SYS_LOAD_ADDR要与bootm的地址一致 */
+#define CONFIG_BOOTDELAY	2		/* Autoboot after 5 seconds	*/
+#define CONFIG_BOOTCOMMAND	"tftp a2000000 uImage\;bootm 82000000"	/* Autoboot command	*/
+//#define CONFIG_BOOTCOMMAND	"nboot kernel\;bootm 82000000" /* 注意： nboot默认加载地址为CONFIG_SYS_LOAD_ADDR，CONFIG_SYS_LOAD_ADDR要与bootm的地址一致 */
 #define CONFIG_BOOTARGS		"console=ttyS2,115200 root=/dev/mtdblock1 noinitrd init=/linuxrc rootfstype=cramfs video=ls1xfb:480x272-16@60"
 
 
