@@ -63,6 +63,21 @@ static struct fb_videomode const vesa800x600_75 = {	//VESA 800x600@75Hz
 	.sync		= FB_SYNC_VERT_HIGH_ACT | FB_SYNC_HOR_HIGH_ACT,
 };
 
+static struct fb_videomode const vesa1024x768_60 = {	//VESA 1024x768@60Hz
+	.name	= "VESA",
+	.pixclock	= 15384,
+	.refresh	= 60,
+	.xres		= 1024,
+	.yres		= 768,
+	.hsync_len	= 136,		// 896-816
+	.left_margin	= 160,	// 1056-896
+	.right_margin	= 24,	// 816-800
+	.vsync_len	= 6,		// 484-481
+	.upper_margin	= 29,	// 500-484
+	.lower_margin	= 3,	// 481-480
+	.sync		= FB_SYNC_VERT_HIGH_ACT | FB_SYNC_HOR_HIGH_ACT,
+};
+
 struct ls1xfb_mach_info ls1x_lcd0_info = {
 	.base		= LS1X_DC0_BASE,
 	.id			= "Graphic lcd",
@@ -126,6 +141,21 @@ int board_video_skip(void)
 		else if (strcmp(e, "vesa800x600@75") == 0) {
 			ls1x_lcd1_info.modes = (struct fb_videomode *)&vesa800x600_75;
 			ret = ls1x_fb_init(&vesa800x600_75, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd1_info);
+		}
+		else if (strcmp(e, "vesa1024x768@60") == 0) {
+			ls1x_lcd1_info.modes = (struct fb_videomode *)&vesa1024x768_60;
+			ret = ls1x_fb_init(&vesa1024x768_60, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd1_info);
+		}
+	#else
+		else if (strcmp(e, "vesa800x600@75") == 0) {
+			ls1x_lcd0_info.modes = (struct fb_videomode *)&vesa800x600_75;
+			ls1x_lcd0_info.de_mode = 0;
+			ret = ls1x_fb_init(&vesa800x600_75, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
+		}
+		else if (strcmp(e, "vesa1024x768@60") == 0) {
+			ls1x_lcd0_info.modes = (struct fb_videomode *)&vesa1024x768_60;
+			ls1x_lcd0_info.de_mode = 0;
+			ret = ls1x_fb_init(&vesa1024x768_60, 0, IPU_PIX_FMT_RGB565, &ls1x_lcd0_info);
 		}
 	#endif
 		if (ret)

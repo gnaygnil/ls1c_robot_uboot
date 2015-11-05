@@ -284,7 +284,7 @@ static void set_uart_clock_divider(void)
 static void set_clock_divider_forls1bvga(struct ls1xfb_info *fbi,
 			      const struct fb_videomode *m)
 {
-	struct ls1b_vga *input_vga;
+/*	struct ls1b_vga *input_vga;
 	extern struct ls1b_vga ls1b_vga_modes[];
 
 	for (input_vga=ls1b_vga_modes; input_vga->ls1b_pll_freq !=0; ++input_vga) {
@@ -298,7 +298,7 @@ static void set_clock_divider_forls1bvga(struct ls1xfb_info *fbi,
 		writel(input_vga->ls1b_pll_freq, LS1X_CLK_PLL_FREQ);
 		writel(input_vga->ls1b_pll_div, LS1X_CLK_PLL_DIV);
 		set_uart_clock_divider();
-	}
+	}*/
 }
 #endif	//#ifdef CONFIG_CPU_LOONGSON1B
 

@@ -22,8 +22,37 @@
 									div 2, double I/O + burst_en + memory_en 模式
 									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
 
-#define PLL_FREQ		0x29
+/* 如果使用vga需要把CONFIG_VIDEO_LS1X_VGA_MODEM项打开，并设在对应的分辨率
+目前只支持800x600 和1024x768的分辨率 */
+#define CONFIG_VIDEO_LS1X_VGA_MODEM
+//#define CONFIG_VGA_800x600_70
+#define CONFIG_VGA_1024x768_60
+
+/* 1B使用vga时pll频率cpu ddr bus频率要设置到特定的值，以适应屏幕大刷新率
+所以不建议1b使用vga显示器，一般使用lcd显示器 */
+#ifdef CONFIG_VIDEO_LS1X_VGA_MODEM
+	#if defined(CONFIG_VGA_800x600_70)
+	#if OSC_CLK == 25000000
+	#define PLL_FREQ	0x21813
+	#define PLL_DIV		0x8a28ea00
+	#else	//AHB_CLK == 33000000
+	#define PLL_FREQ	0x0080c
+	#define PLL_DIV		0x8a28ea00
+	#endif
+	#elif defined(CONFIG_VGA_1024x768_60)
+	#if OSC_CLK == 25000000
+	#define PLL_FREQ	0x2181d
+	#define PLL_DIV		0x8a28ea00
+	#else	//AHB_CLK == 33000000
+	#define PLL_FREQ	0x21813
+	#define PLL_DIV		0x8a28ea00
+	#endif
+	#endif
+#else
+#define PLL_FREQ	0x29
 #define PLL_DIV		0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
+#endif
+
 #define PLL_CLK		((12+(PLL_FREQ&0x3f))*OSC_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*OSC_CLK/2/1024)
 
 #ifndef CPU_CLOCK_RATE
@@ -219,7 +248,7 @@
 #define CONFIG_BOOTDELAY	2		/* Autoboot after 5 seconds	*/
 #define CONFIG_BOOTCOMMAND	"tftp a2000000 uImage\;bootm 82000000"	/* Autoboot command	*/
 //#define CONFIG_BOOTCOMMAND	"nboot kernel\;bootm 82000000" /* 注意： nboot默认加载地址为CONFIG_SYS_LOAD_ADDR，CONFIG_SYS_LOAD_ADDR要与bootm的地址一致 */
-#define CONFIG_BOOTARGS		"console=ttyS5,115200 root=/dev/mtdblock1 noinitrd init=/linuxrc rootfstype=cramfs video=ls1xfb:480x272-16@60"
+#define CONFIG_BOOTARGS		"console=ttyS5,115200 root=/dev/mtdblock1 noinitrd init=/linuxrc rootfstype=cramfs video=ls1bvga:1024x768-16@60"
 
 
 #endif	/* CONFIG_H */
