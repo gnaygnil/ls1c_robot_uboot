@@ -22,14 +22,7 @@
 #define LS1X_CLK_PLL_FREQ	0xbfe78030
 #define LS1X_CLK_PLL_DIV	0xbfe78034
 
-/* GPIO Controller */
-#if defined(CONFIG_CPU_LOONGSON1A)
-#define LS1X_GPIO_COUNT	64
-#elif defined(CONFIG_CPU_LOONGSON1B)
-#define LS1X_GPIO_COUNT 96
-#elif defined(CONFIG_CPU_LOONGSON1C)
-#define LS1X_GPIO_COUNT 128
-#endif
+#define LS1X_MUX_BASE		0xbfd00420
 
 /* GPIO 0-31 group 0 */
 #define LS1X_GPIO_CFG0		0xbfd010c0	/* 配置寄存器 */
@@ -130,5 +123,7 @@
 
 /* SDIO */
 #define LS1X_SDIO_BASE		0xbfe6c000
+
+#include <asm/arch/regs-mux.h>
 
 #endif

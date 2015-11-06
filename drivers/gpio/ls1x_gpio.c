@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <asm/ls1x.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
 
@@ -226,3 +227,7 @@ int gpio_direction_output(unsigned gpio, int value)
 	return 0;
 }
 
+int gpio_is_valid(int gpio)
+{
+	return (gpio >= 0) && (gpio < LS1X_GPIO_COUNT);
+}

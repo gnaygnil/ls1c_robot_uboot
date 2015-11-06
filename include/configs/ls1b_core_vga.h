@@ -17,10 +17,11 @@
 #define CONFIG_BOARD_NAME	"ls1b core board ver:3.1"
 #define LS1BSOC 1
 
-#define OSC_CLK		25000000 /* Hz */
 #define LS1X_SPI_SFC_PARAM	0x0b	/* 设置SPI flash控制器的模式，加快启动
 									div 2, double I/O + burst_en + memory_en 模式
 									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
+
+#define OSC_CLK		25000000 /* Hz */
 
 /* 如果使用vga需要把CONFIG_VIDEO_LS1X_VGA_MODEM项打开，并设在对应的分辨率
 目前只支持800x600 和1024x768的分辨率 */
@@ -111,7 +112,9 @@
 
 /* SPI Settings */
 #define CONFIG_LS1X_SPI
+//#define CONFIG_LS1X_SPI1_ENABLE	/* 使用spi1控制器(复用设置), spi1控制器复用can，如果不使用spi1，最好把该选项关闭 */
 #define CONFIG_SPI_CS
+//#define CONFIG_SPI_CS_USED_GPIO
 #define CONFIG_SF_DEFAULT_SPEED	30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
@@ -156,8 +159,8 @@
 #define CONFIG_CMD_MMC
 /* SPI_MMC Settings */
 #define CONFIG_MMC_SPI
-#define CONFIG_MMC_SPI_BUS 0
-#define CONFIG_MMC_SPI_CS 2
+#define CONFIG_MMC_SPI_BUS 1
+#define CONFIG_MMC_SPI_CS 0
 #define CONFIG_CMD_MMC_SPI
 
 /* RTC configuration */

@@ -17,11 +17,11 @@
 #define CONFIG_BOARD_NAME	"ls1a core board ver:1.0"
 #define LS1ASOC 1
 
-#define OSC_CLK		33000000 /* Hz */
 #define LS1X_SPI_SFC_PARAM	0x0b	/* 设置SPI flash控制器的模式，加快启动
 									div 2, double I/O + burst_en + memory_en 模式
 									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
 									
+#define OSC_CLK		33000000 /* Hz */
 #define CPU_MULT		8			// CPU倍频
 #define DDR_MULT		4			// DDR倍频
 #define COREPLL_CFG	(0x8888 | (CPU_MULT-4) | ((DDR_MULT-3)<<8))
@@ -83,7 +83,9 @@
 
 /* SPI Settings */
 #define CONFIG_LS1X_SPI
+//#define CONFIG_LS1X_SPI1_ENABLE	/* 使用spi1控制器(复用设置), spi1控制器复用can，如果不使用spi1，最好把该选项关闭 */
 #define CONFIG_SPI_CS
+//#define CONFIG_SPI_CS_USED_GPIO
 #define CONFIG_SF_DEFAULT_SPEED	30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND

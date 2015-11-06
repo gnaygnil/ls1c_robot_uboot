@@ -195,6 +195,9 @@ void spi_init(void)
 		/* SPI flash时序控制寄存器 */
 		writeb(0x05, &regs->timing);
 	}
+#if defined(CONFIG_LS1X_SPI1_ENABLE) && defined(CONFIG_CPU_LOONGSON1B)
+	writel(readl(LS1X_MUX_CTRL1) | SPI1_USE_CAN | SPI1_CS_USE_PWM01, LS1X_MUX_CTRL1);
+#endif
 }
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,

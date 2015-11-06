@@ -17,12 +17,12 @@
 #define CONFIG_BOARD_NAME	"lsgz_1b_dev ver:2.0"
 #define LS1BSOC 1
 
-#define OSC_CLK		33000000 /* Hz */
 #define LS1X_SPI_SFC_PARAM	0x0b	/* 设置SPI flash控制器的模式，加快启动
 									div 2, double I/O + burst_en + memory_en 模式
 									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
 
-#define PLL_FREQ		0x1c
+#define OSC_CLK		33000000 /* Hz */
+#define PLL_FREQ	0x1c
 #define PLL_DIV		0x92392a00 /* ((1<<31)|(4<<26)|(1<<25)|(3<<20)|(1<<19)|(4<<14)|0x2a00) */
 #define PLL_CLK		((12+(PLL_FREQ&0x3f))*OSC_CLK/2 + ((PLL_FREQ>>8)&0x3ff)*OSC_CLK/2/1024)
 
@@ -106,7 +106,9 @@
 
 /* SPI Settings */
 #define CONFIG_LS1X_SPI
+//#define CONFIG_LS1X_SPI1_ENABLE	/* 使用spi1控制器(复用设置), spi1控制器复用can，如果不使用spi1，最好把该选项关闭 */
 #define CONFIG_SPI_CS
+//#define CONFIG_SPI_CS_USED_GPIO
 #define CONFIG_SF_DEFAULT_SPEED	30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND

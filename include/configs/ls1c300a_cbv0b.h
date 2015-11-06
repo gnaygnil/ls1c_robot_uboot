@@ -18,11 +18,11 @@
 #define LS1CSOC 1
 
 
-#define OSC_CLK		24000000 /* Hz */
 #define LS1X_SPI_SFC_PARAM	0x1b	/* 设置SPI flash控制器的模式，加快启动
 									div 4, double I/O + burst_en + memory_en 模式
 									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
 
+#define OSC_CLK		24000000 /* Hz */
 #define SDRAM_DIV_2		0x0
 #define SDRAM_DIV_3		0x2
 #define SDRAM_DIV_4		0x1
@@ -88,6 +88,7 @@
 /* SPI Settings */
 #define CONFIG_LS1X_SPI
 #define CONFIG_SPI_CS
+//#define CONFIG_SPI_CS_USED_GPIO
 #define CONFIG_SF_DEFAULT_SPEED	30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
