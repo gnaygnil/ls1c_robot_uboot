@@ -107,18 +107,28 @@ struct ls1xfb_mach_info ls1x_lcd1_info = {
 static void backlight(int on)
 {
 	if (on) {
+	#ifdef CONFIG_BACKLIGHT_GPIO
 	#ifdef CONFIG_PCA953X
 		pca953x_set_dir(CONFIG_SYS_I2C_PCA953X_ADDR, 
 		  1 << CONFIG_BACKLIGHT_GPIO, PCA953X_DIR_OUT << CONFIG_BACKLIGHT_GPIO);
 		pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR, 
 		  1 << CONFIG_BACKLIGHT_GPIO, 1 << CONFIG_BACKLIGHT_GPIO);
+	#else
+		gpio_request(CONFIG_BACKLIGHT_GPIO, "lcd_backlight");
+		gpio_direction_output(CONFIG_BACKLIGHT_GPIO, 1);
+	#endif
 	#endif
 	} else {
+	#ifdef CONFIG_BACKLIGHT_GPIO
 	#ifdef CONFIG_PCA953X
 		pca953x_set_dir(CONFIG_SYS_I2C_PCA953X_ADDR, 
 		  1 << CONFIG_BACKLIGHT_GPIO, PCA953X_DIR_OUT << CONFIG_BACKLIGHT_GPIO);
 		pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR, 
 		  1 << CONFIG_BACKLIGHT_GPIO, 0 << CONFIG_BACKLIGHT_GPIO);
+	#else
+		gpio_request(CONFIG_BACKLIGHT_GPIO, "lcd_backlight");
+		gpio_direction_output(CONFIG_BACKLIGHT_GPIO, 0);
+	#endif
 	#endif
 	}
 }

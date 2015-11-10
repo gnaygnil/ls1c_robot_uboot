@@ -203,6 +203,8 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
+/* lcd背光或供电控制 /board/ls1x/ls1x_video.c文件中lcd控制器初始化后使能背光 */
+//#define CONFIG_BACKLIGHT_GPIO 28	//gpio号
 
 /*
  * Command line configuration.
