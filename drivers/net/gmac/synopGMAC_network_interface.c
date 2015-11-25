@@ -526,10 +526,12 @@ static int gmac_init(struct eth_device *dev, bd_t * bd)
 	dw_write_hwaddr(dev);
 
 #ifdef CONFIG_CPU_LOONGSON1C
-	writel(/*FIXEDBURST | PRIORXTX_41*/(0x2 << 2) | PBL8X_MODE | DMA_RPBL | DMA_PBL,
+//	writel(/*FIXEDBURST | PRIORXTX_41*/(0x2 << 2) | PBL8X_MODE | DMA_RPBL | DMA_PBL,
+	writel(/*FIXEDBURST | PRIORXTX_41*/(0x2 << 2) | DMA_PBL,
 			&dma_p->busmode);
 #else
-	writel(/*FIXEDBURST | PRIORXTX_41*/(0x1 << 2) | PBL8X_MODE | DMA_RPBL | DMA_PBL,
+//	writel(/*FIXEDBURST | PRIORXTX_41*/(0x1 << 2) | PBL8X_MODE | DMA_RPBL | DMA_PBL,
+	writel(/*FIXEDBURST | PRIORXTX_41*/(0x1 << 2) | DMA_PBL,
 			&dma_p->busmode);
 #endif
 
