@@ -25,7 +25,7 @@
  * Most of the operations on the GMAC device are available in this file.
  * Functions for initiliasing and accessing MAC/DMA/PHY registers and the DMA descriptors
  * are encapsulated in this file. The functions are platform/host/OS independent.
- * These functions in turn use the low level device dependent (HAL) functions to 
+ * These functions in turn use the low level device dependent (HAL) functions to
  * access the register space.
  * \internal
  * ------------------------REVISION HISTORY---------------------------------
@@ -50,9 +50,11 @@ s32 synopGMAC_reset(synopGMACdevice *gmacdev)
 		data = synopGMACReadReg(gmacdev->DmaBase, DmaBusMode);
 		TR("DATA after Reset = %08x\n",data);
 		if (data & DmaResetOn) {
-			if(cnt > 10)
-				printf("Bus Mode Reg after reset: 0x%08x\n", data);
-//			udelay(1);
+			if(cnt > 20) {
+				printf("  error: synopGMAC_reset DmaBusMode: 0x%08x\n", data);
+				return -1;
+			}
+			udelay(1);
 			cnt ++;
 		} else
 			break;
@@ -115,7 +117,7 @@ void synopGMAC_tx_desc_init_ring(DmaDesc *desc, int last_ring_desc)
 {
 #ifdef ENH_DESC
 	desc->status |= (last_ring_desc? TxDescEndOfRing : 0);
-	desc->length = 0; 
+	desc->length = 0;
 #else
 	desc->length = last_ring_desc? TxDescEndOfRing : 0;
 #endif
@@ -402,15 +404,15 @@ s32 synopGMAC_get_tx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 	}
 	TR("(get)%02d %08x %08x %08x %08x %08x %08x %08x\n",txover,(u32)txdesc,txdesc->status,txdesc->length,txdesc->buffer1,txdesc->buffer2,txdesc->data1,txdesc->data2);
 
-	return txover;	
+	return txover;
 }
 
 /**
   * Populate the tx desc structure with the buffer address.
-  * Once the driver has a packet ready to be transmitted, this function is called with the 
+  * Once the driver has a packet ready to be transmitted, this function is called with the
   * valid dma-able buffer addresses and their lengths. This function populates the descriptor
   * and make the DMA the owner for the descriptor. This function also controls whetther Checksum
-  * offloading to be done in hardware or not. 
+  * offloading to be done in hardware or not.
   * This api is same for both ring mode and chain mode.
   * @param[in] pointer to synopGMACdevice.
   * @param[in] Dma-able buffer1 pointer.
@@ -499,7 +501,7 @@ s32 synopGMAC_set_tx_qptr(synopGMACdevice * gmacdev, u32 Buffer1, u32 Length1, u
 	printf("%02d %08x %08x %08x %08x %08x %08x %08x\n",txnext,(u32)txdesc,txdesc->status,txdesc->length,txdesc->buffer1,txdesc->buffer2,txdesc->data1,txdesc->data2);
 #endif
 
-	return txnext;	
+	return txnext;
 }
 
 /**
