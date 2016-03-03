@@ -282,7 +282,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (len_read <= 0)
 		return 1;
 
-	printf("%d bytes read in %lu ms", len_read, time);
+	printf("%d (%lx hex) bytes read in %lu ms", len_read, len_read, time);
 	if (time > 0) {
 		puts(" (");
 		print_size(len_read / time * 1000, "/s");
@@ -342,7 +342,7 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (len <= 0)
 		return 1;
 
-	printf("%d bytes written in %lu ms", len, time);
+	printf("%d (%lx hex) bytes written in %lu ms", len, len, time);
 	if (time > 0) {
 		puts(" (");
 		print_size(len / time * 1000, "/s");
