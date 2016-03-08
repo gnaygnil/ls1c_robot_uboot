@@ -15,7 +15,8 @@
 #define CONFIG_CPU_LOONGSON1
 #define CONFIG_CPU_LOONGSON1C
 //#define CONFIG_BOARD_NAME	"openloongson v1.0 2015.03"
-#define CONFIG_BOARD_NAME	"openloongson v2.0 2015.09"
+//#define CONFIG_BOARD_NAME	"openloongson v2.0 2015.09"
+#define CONFIG_BOARD_NAME	"openloongson board"
 #define LS1CSOC 1
 
 
@@ -38,7 +39,7 @@
 #ifndef CPU_CLOCK_RATE
 #define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */
 #endif
-#define CPU_TCLOCK_RATE CPU_CLOCK_RATE 
+#define CPU_TCLOCK_RATE CPU_CLOCK_RATE
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE / 2)
 #define CONFIG_SYS_HZ			1000
 
@@ -161,7 +162,7 @@
 						"1M(uboot_env),"	\
 						"13M(kernel),"	\
 						"50M(root),"	\
-						"-(user)"
+						"-(mini_rootfs)"
 #define CONFIG_CMD_MTDPARTS
 
 /* NAND Flash boot */
@@ -207,7 +208,7 @@
 #define CONFIG_NET_MULTI
 
 /* Framebuffer and LCD */
-//#define CONFIG_PREBOOT
+#if 0
 #define CONFIG_VIDEO
 #define VIDEO_FB_16BPP_WORD_SWAP
 #define CONFIG_VIDEO_LS1X
@@ -219,7 +220,7 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
-
+#endif
 /*
  * Command line configuration.
  */
@@ -241,7 +242,7 @@
 //#define CONFIG_BOOTCOMMAND	"tftp a1000000 uImage\;bootm 81000000"	/* Autoboot command	*/
 #define CONFIG_BOOTCOMMAND	"nboot kernel\;bootm 81000000" /* 注意： nboot默认加载地址为CONFIG_SYS_LOAD_ADDR，CONFIG_SYS_LOAD_ADDR要与bootm的地址一致 */
 //#define CONFIG_BOOTARGS		"console=ttyS2,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=cramfs video=ls1xfb:480x272-16@60"
-#define CONFIG_BOOTARGS		"console=ttyS2,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=yaffs2 rw video=ls1xfb:480x272-16@60"
+#define CONFIG_BOOTARGS		"console=ttyS2,115200 root=/dev/mtdblock2 noinitrd init=/linuxrc rootfstype=yaffs2 rw"
 
 
 #endif	/* __CONFIG_H */
