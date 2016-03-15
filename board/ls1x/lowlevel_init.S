@@ -201,7 +201,7 @@ cpu_win_fixup:
 	nop
 
 #ifdef CONFIG_DDR16BIT
-	/*16bit ddr and disable conf*/ 
+	/*16bit ddr and disable conf*/
 	#if defined(CONFIG_CPU_LOONGSON1A)
 		li a1, 0x3
 	#elif defined(CONFIG_CPU_LOONGSON1B)
@@ -255,7 +255,7 @@ cpu_win_fixup:
 LEAF(initserial)
 	.set	noat
 	move	AT, ra
-	
+
 	la		v0, UART_BASE_ADDR
 #ifdef	HAVE_MUT_COM
 	bal		1f
@@ -318,13 +318,19 @@ LEAF(initserial)
 	b 2f
 	nop
 1:
-	srl		v1, 1	
+	srl		v1, 1
 2:
 	li		a1, 2*16*CONFIG_BAUDRATE
 	divu	v1, v1, a1
 #elif defined(CONFIG_CPU_LOONGSON1C)
 	/* uart3 config mux 默认第一复用 */
 #if (UART_BASE_ADDR == 0xbfe4c000)
+#if defined(CONFIG_LS1C_UART_USE_EJTAG)
+	li		a0, 0xbfd011f0
+	lw		a1, 0x00(a0)
+	ori		a1, 0x03
+	sw		a1, 0x00(a0)
+#else
 	li		a0, 0xbfd011c4
 //	lw		a1, 0x00(a0)
 //	and		a1, 0xfffffff9
@@ -338,11 +344,7 @@ LEAF(initserial)
 //	lw		a1, 0x30(a0)
 //	and		a1, 0xfffffff9
 //	sw		a1, 0x30(a0)
-
-/*	li		a0, 0xbfd011f0
-	lw		a1, 0x00(a0)
-	ori		a1, 0x03
-	sw		a1, 0x00(a0)*/
+#endif
 #elif (UART_BASE_ADDR == 0xbfe48000)
 	/* UART2 */
 	li		a0, 0xbfd011c4
@@ -407,7 +409,7 @@ LEAF(initserial)
 	sb		v1, NSREG(NS16550_MCR)(v0)
 	li		v1, 0x0
 	sb		v1, NSREG(NS16550_IER)(v0)
-        
+
 	#disable all interrupt
 	li  	v1, 0x0
 	sb  	v1, NSREG(NS16550_IER)(v0)

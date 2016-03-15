@@ -37,7 +37,7 @@
 #ifndef CPU_CLOCK_RATE
 #define CPU_CLOCK_RATE	(PLL_CLK / ((PLL_DIV & DIV_CPU) >> DIV_CPU_SHIFT))	/* MHz clock for the MIPS core */
 #endif
-#define CPU_TCLOCK_RATE CPU_CLOCK_RATE 
+#define CPU_TCLOCK_RATE CPU_CLOCK_RATE
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE / 2)
 #define CONFIG_SYS_HZ			1000
 
@@ -73,6 +73,9 @@
 /* misc settings */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f() */
 
+/* LS1C UART串口配置
+   如果串口3使用跟ejtag复用的引脚，需要选上该选项，否则屏蔽该选项 */
+#define CONFIG_LS1C_UART_USE_EJTAG
 /* UART */
 #define CONFIG_CPU_UART
 #define CONFIG_BAUDRATE			115200
@@ -92,6 +95,8 @@
 #define CONFIG_SF_DEFAULT_SPEED	30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SPI_FLASH_GIGADEVICE
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 

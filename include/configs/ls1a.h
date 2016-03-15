@@ -20,7 +20,7 @@
 #define LS1X_SPI_SFC_PARAM	0x0b	/* 设置SPI flash控制器的模式，加快启动
 									div 2, double I/O + burst_en + memory_en 模式
 									部分SPI flash可能不支持 导致启动不了 根据使用的spi flash型号修改 */
-									
+
 #define OSC_CLK		33000000 /* Hz */
 #define CPU_MULT		8			// CPU倍频
 #define DDR_MULT		4			// DDR倍频
@@ -30,7 +30,7 @@
 #ifndef CPU_CLOCK_RATE
 #define CPU_CLOCK_RATE	(((COREPLL_CFG & 7) + 4) * OSC_CLK)	/* MHz clock for the MIPS core */
 #endif
-#define CPU_TCLOCK_RATE CPU_CLOCK_RATE 
+#define CPU_TCLOCK_RATE CPU_CLOCK_RATE
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE / 2)
 #define CONFIG_SYS_HZ			1000
 
@@ -90,6 +90,7 @@
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SPI_FLASH_GIGADEVICE
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 
